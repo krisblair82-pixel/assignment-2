@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Pre-commit hook: run the secret scanner on staged files.
+# Installed via `git config core.hooksPath scripts/hooks` (see README Setup).
+set -u
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+STAGED="$(git diff --cached --name-only --diff-filter=ACM | tr '\n' ' ')"
+
+[ -z "$STAGED" ] && exit 0
+# shellcheck disable=SC2086
+"$REPO_ROOT/scripts/scan_secrets.sh" $STAGED

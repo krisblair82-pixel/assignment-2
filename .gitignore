@@ -1,0 +1,24 @@
+# ---- secrets: NEVER commit ----
+.env
+.env.*
+!.env.example
+
+# ---- course materials (copyrighted, kept out of the repo) ----
+materials/
+
+# ---- python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ---- generated artifacts (regenerable via ingest) ----
+index/
+chroma*/
+renders/
+page_images/
+*.log
+
+# ---- OS noise ----
+.DS_Store
+Thumbs.db
