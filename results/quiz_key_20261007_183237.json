@@ -1,0 +1,27 @@
+{
+ "quiz_id": "20261007_183237",
+ "answers": {
+  "q1": {
+   "correct": 0,
+   "explanation": "The introduction explicitly states that the deck covers quarterly performance review methods and how to read charts.",
+   "source": {
+    "doc_id": "slides_intro",
+    "page": 1,
+    "slide": null,
+    "section": null,
+    "excerpt": "Welcome to the course. This deck covers quarterly performance review methods and how to read the charts."
+   }
+  },
+  "q2": {
+   "correct": 1,
+   "explanation": "The material clearly distinguishes chart types, noting that line charts are used to show trends over time.",
+   "source": {
+    "doc_id": "slides_intro",
+    "page": 2,
+    "slide": null,
+    "section": null,
+    "excerpt": "Charts: bar charts compare categories; line charts show trends over time. The syllabus describes the grading scheme in detail."
+   }
+  }
+ }
+}

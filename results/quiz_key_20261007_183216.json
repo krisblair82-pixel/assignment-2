@@ -1,0 +1,38 @@
+{
+ "quiz_id": "20261007_183216",
+ "answers": {
+  "q1": {
+   "correct": 1,
+   "explanation": "The course material explicitly distinguishes chart types, stating that line charts are used to visualize trends over time, while bar charts are used for comparing categories.",
+   "source": {
+    "doc_id": "slides_intro",
+    "page": 2,
+    "slide": null,
+    "section": null,
+    "excerpt": "Charts: bar charts compare categories; line charts show trends over time. The syllabus describes the grading scheme in detail."
+   }
+  },
+  "q2": {
+   "correct": 1,
+   "explanation": "The excerpt directly attributes the 12% Q3 sales growth to the introduction of a new product line, with no mention of marketing, international expansion, or cost reductions.",
+   "source": {
+    "doc_id": "slides_intro",
+    "page": 1,
+    "slide": null,
+    "section": null,
+    "excerpt": "Quarterly sales grew 12% in Q3, driven by the new product line. The chart on this page shows the four quarters."
+   }
+  },
+  "q3": {
+   "correct": 1,
+   "explanation": "The introduction clearly states that the deck's scope is limited to quarterly performance review methods and instructions on how to read charts.",
+   "source": {
+    "doc_id": "slides_intro",
+    "page": 1,
+    "slide": null,
+    "section": null,
+    "excerpt": "Welcome to the course. This deck covers quarterly performance review methods and how to read the charts."
+   }
+  }
+ }
+}
