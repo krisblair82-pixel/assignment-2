@@ -1,0 +1,29 @@
+{
+ "query": "What was the quarterly sales growth in Q3?",
+ "doc_filter": null,
+ "legs": {
+  "bm25": 8,
+  "text_dense": 8,
+  "visual": 0,
+  "rerank": 2
+ },
+ "text_chunks": [
+  {
+   "chunk_id": "t2",
+   "doc_id": "slides_intro",
+   "page": 2,
+   "slide": null,
+   "section": null,
+   "text": "Charts: bar charts compare categories; line charts show trends over time. The syllabus describes the grading scheme in detail."
+  },
+  {
+   "chunk_id": "t1",
+   "doc_id": "slides_intro",
+   "page": 1,
+   "slide": null,
+   "section": null,
+   "text": "Quarterly sales grew 12% in Q3, driven by the new product line. The chart on this page shows the four quarters."
+  }
+ ],
+ "pages": []
+}
