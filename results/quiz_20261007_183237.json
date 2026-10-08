@@ -1,0 +1,28 @@
+{
+ "quiz_id": "20261007_183237",
+ "doc_id": "slides_intro",
+ "topic": "chart",
+ "n": 2,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "What is the primary focus of the course deck as stated in the introduction?",
+   "options": [
+    "A. Quarterly performance review methods and chart reading",
+    "B. Annual budget forecasting and financial auditing",
+    "C. Employee onboarding procedures and HR policies",
+    "D. Marketing campaign strategies and social media analytics"
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "According to the course material, what is the primary purpose of a line chart?",
+   "options": [
+    "A. To compare different categories",
+    "B. To show trends over time",
+    "C. To display hierarchical data structures",
+    "D. To illustrate geographic distributions"
+   ]
+  }
+ ]
+}
