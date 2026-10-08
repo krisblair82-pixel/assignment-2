@@ -1,0 +1,27 @@
+{
+ "question": "What was the quarterly sales growth in Q3?",
+ "doc_filter": null,
+ "covered": true,
+ "answer": "Quarterly sales grew 12% in Q3.",
+ "sources": [
+  {
+   "doc_id": "slides_intro",
+   "page": 1,
+   "slide": null,
+   "section": null,
+   "excerpt": "Quarterly sales grew 12% in Q3, driven by the new product line. The chart on this page shows the four quarters."
+  }
+ ],
+ "legs": {
+  "bm25": 8,
+  "text_dense": 8,
+  "visual": 0,
+  "rerank": 2
+ },
+ "pages_used": 0,
+ "validation": {
+  "schema_issues": [],
+  "dropped_sources": []
+ },
+ "raw_model_output": "\n\n```json\n{\n  \"answer\": \"Quarterly sales grew 12% in Q3.\",\n  \"sources\": [\n    {\n      \"doc_id\": \"slides_intro\",\n      \"page\": 1,\n      \"slide\": null,\n      \"section\": null,\n      \"excerpt\": \"Quarterly sales grew 12% in Q3, driven by the new product line.\"\n    }\n  ]\n}\n```"
+}

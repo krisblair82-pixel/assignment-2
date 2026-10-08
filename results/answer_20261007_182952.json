@@ -1,0 +1,27 @@
+{
+ "question": "What happens if I submit an assignment late?",
+ "doc_filter": null,
+ "covered": true,
+ "answer": "Late submissions lose 10% per day, up to a maximum of 3 days.",
+ "sources": [
+  {
+   "doc_id": "syllabus",
+   "page": null,
+   "slide": null,
+   "section": "Late policy",
+   "excerpt": "Late submissions lose 10% per day, up to a maximum of 3 days."
+  }
+ ],
+ "legs": {
+  "bm25": 8,
+  "text_dense": 8,
+  "visual": 0,
+  "rerank": 4
+ },
+ "pages_used": 0,
+ "validation": {
+  "schema_issues": [],
+  "dropped_sources": []
+ },
+ "raw_model_output": "\n\n```json\n{\n  \"answer\": \"Late submissions lose 10% per day, up to a maximum of 3 days.\",\n  \"sources\": [\n    {\n      \"doc_id\": \"syllabus\",\n      \"page\": null,\n      \"slide\": null,\n      \"section\": \"Late policy\",\n      \"excerpt\": \"Late submissions lose 10% per day, up to a maximum of 3 days.\"\n    }\n  ]\n}\n```"
+}
