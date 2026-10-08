@@ -1,0 +1,19 @@
+{
+ "question": "Who won the Super Bowl last year?",
+ "doc_filter": null,
+ "covered": false,
+ "answer": "NOT_COVERED",
+ "sources": [],
+ "legs": {
+  "bm25": 8,
+  "text_dense": 8,
+  "visual": 0,
+  "rerank": 6
+ },
+ "pages_used": 0,
+ "validation": {
+  "schema_issues": [],
+  "dropped_sources": []
+ },
+ "raw_model_output": "\n\n{\"answer\": \"NOT_COVERED\", \"sources\": []}"
+}
