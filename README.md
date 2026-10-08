@@ -31,3 +31,24 @@ cp config.example .env                    # fill in the real class API key
 
 ## Status
 Scaffolding: repo plumbing + connectivity verified (see `connectivity_report.md`). Build tasks tracked as GitHub issues (no owners assigned — team picks them up).
+
+## Quick start (current skeleton)
+```bash
+python -m venv .venv && .venv\Scripts\activate   # (or: uv venv .venv)
+pip install -r requirements.txt
+cp config.example .env                            # fill in the real class API key
+
+python probe_services.py    # connectivity check for 9001-9005 (scrubbed)
+python smoke.py             # live smoke test: embed / rerank / chat / parse
+python ingest.py --dry-run  # inventory + page rendering, no network calls
+python ingest.py            # full ingest once materials/ has course files
+```
+
+## Result files (committed evidence)
+- `connectivity_report.md` — initial service probes (routes + quirks found)
+- `results/smoke_*.json` — live smoke test results, timestamped
+- `results/inventory_*.json` — per-file ingest inventory, timestamped
+
+## Known open items (honest status)
+- 9003 (visual embeddings) server went down during the skeleton smoke test; text+image embedding clients are schema-verified but the image path needs one end-to-end re-check when the server returns. 9002/9004/9005/9001 all pass live.
+- Visual-embedding request containing an image may have contributed to the 9003 crash — we are keeping image payloads small and will retest carefully.

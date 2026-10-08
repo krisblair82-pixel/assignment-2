@@ -1,0 +1,30 @@
+{
+ "generated_at": "2026-10-07 18:09:53",
+ "checks": [
+  {
+   "name": "text embed",
+   "ok": true,
+   "detail": "dim=2048"
+  },
+  {
+   "name": "visual embed (text)",
+   "ok": false,
+   "detail": "ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host"
+  },
+  {
+   "name": "rerank top-1 relevant",
+   "ok": true,
+   "detail": "top=quarterly sales grew 12% in Q3, driven by the new product li"
+  },
+  {
+   "name": "chat content",
+   "ok": true,
+   "detail": "'OK'"
+  },
+  {
+   "name": "parse synthetic page",
+   "ok": false,
+   "detail": "ServiceError: service error 400 on http://dobolyi.com:9005/v1/chat/completions (details scrubbed): {'error': {'message': 'Failed to load image: cannot identify image file <_io.BytesIO object>', 'type'"
+  }
+ ]
+}
