@@ -22,13 +22,14 @@ def test_answer_question_calls_grounded_backend_and_formats_source(monkeypatch):
 
     monkeypatch.setattr(app, "grounded_ask", fake_ask)
 
-    answer, status = app.answer_question("What is attention?", "week2")
+    answer, status, evidence = app.answer_question("What is attention?", "week2")
 
     assert calls == {"question": "What is attention?", "doc_filter": "week2"}
     assert answer == "Transformers use attention."
     assert "week2" in status
     assert "slide 12" in status
     assert "Attention weighs the importance of tokens." in status
+    assert evidence == []
 
 
 def test_answer_question_rejects_blank_question_without_backend_call(monkeypatch):
@@ -39,7 +40,8 @@ def test_answer_question_rejects_blank_question_without_backend_call(monkeypatch
 
     monkeypatch.setattr(app, "grounded_ask", fail_if_called)
 
-    answer, status = app.answer_question("  ", None)
+    answer, status, evidence = app.answer_question("  ", None)
 
     assert answer == ""
     assert "enter a question" in status.lower()
+    assert evidence == []
