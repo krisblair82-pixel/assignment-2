@@ -137,13 +137,17 @@ def test_image_prompt_labels_each_slide(monkeypatch, tmp_path):
     assert not any(p["type"] == "text" and "slide=12" in p["text"] for p in parts)
 
 
-def test_unattached_slide_is_not_mislabeled_as_image_evidence(monkeypatch, tmp_path):
+def test_cited_slide_gets_its_own_retrieved_image_not_another_slide(monkeypatch, tmp_path):
+    """Requirement 2a: a source citing slide 12 is shown slide 12's ORIGINAL
+    image when that image is a retrieved candidate - and never the image of a
+    different slide (no mislabeling)."""
     reply = json.dumps({"answer": "The source mentions security.",
                         "sources": [{"doc_id": "week-2.pptx", "slide": 12,
                                      "page": None, "excerpt": "Security?"}]})
-    setup_answer(monkeypatch, tmp_path, reply, cited_slide=12)
+    images = setup_answer(monkeypatch, tmp_path, reply, cited_slide=12)
     result = answers.ask("What does this show?", index_path="synthetic.json")
-    assert "image_path" not in result["sources"][0]
+    assert result["sources"][0]["image_path"] == str(tmp_path / "slide-12.png")
+    assert result["sources"][0]["image_path"] != images[0]["image_path"]  # not slide 34
 
 
 def test_image_only_slide_uses_its_image_not_another_slide_text(monkeypatch, tmp_path):

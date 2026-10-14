@@ -10,7 +10,7 @@ Pipeline:
      from the model (fabricated citations cannot pass).
 
 CLI:
-  python answers.py ask "question" [--doc DOC_ID] [--index PATH] [--save]
+  python answers.py "question" [--doc DOC_ID] [--index PATH] [--save]
 """
 import argparse
 import base64
@@ -224,7 +224,11 @@ def ask(question: str, doc_filter: str | None = None,
             covered = False
 
     for source in result["sources"]:
-        for page in attached_pages:
+        # Gallery matching (requirement 2a): find the ORIGINAL page/slide image
+        # for every verified source across ALL retrieved page candidates, not
+        # just the pages the model saw - so the answer is shown alongside the
+        # actual slide that supports it.
+        for page in pages:
             if (source["doc_id"] == page["doc_id"]
                     and source.get("page") == page.get("page")
                     and source.get("slide") == page.get("slide")):
