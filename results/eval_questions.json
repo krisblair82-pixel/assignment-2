@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "description": "Small, reviewable gold set for MBAX 6418 hybrid retrieval and grounded-answer checks.",
+  "source_doc": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+  "questions": [
+    {
+      "id": "q01_open_weights",
+      "question": "What are two characteristics of open-weight LLMs?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 4, "modality": "text", "terms": ["Free to download", "Reproducible and private"]}]
+    },
+    {
+      "id": "q02_training_data",
+      "question": "What must models be pretrained on, according to the materials?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 5, "modality": "text", "terms": ["large corpuses of data"]}]
+    },
+    {
+      "id": "q03_model_size",
+      "question": "What tradeoffs should be considered when choosing model size?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 6, "modality": "text", "terms": ["size", "knowledge", "performance", "cost"]}]
+    },
+    {
+      "id": "q04_context_window",
+      "question": "What does context length provide to a language model?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 8, "modality": "text", "terms": ["working memory", "context window"]}]
+    },
+    {
+      "id": "q05_prompt_caching",
+      "question": "How does prompt caching improve performance across requests?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 12, "modality": "text", "terms": ["KV cache", "reused across requests"]}]
+    },
+    {
+      "id": "q06_quantization",
+      "question": "What is quantization intended to do to model parameters?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 15, "modality": "text", "terms": ["smaller", "faster"]}]
+    },
+    {
+      "id": "q07_moe",
+      "question": "What does MoE stand for in the model-types discussion?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 17, "modality": "text", "terms": ["Mixture of Experts"]}]
+    },
+    {
+      "id": "q08_vibe_vs_agentic",
+      "question": "How do vibe coding and agentic coding differ in terms of autonomy?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 30, "modality": "text", "terms": ["Human-in-the-loop", "Autonomous"]}]
+    },
+    {
+      "id": "q09_interface_choice",
+      "question": "What determines the choice of interface when getting started with vibe coding?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 36, "modality": "text", "terms": ["personal preference"]}]
+    },
+    {
+      "id": "q10_mcp_visual",
+      "question": "What kinds of add-ons can Model Context Protocol interfaces access?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 42, "modality": "text", "terms": ["Tools", "Data", "APIs"]}]
+    },
+    {
+      "id": "q11_security_visual",
+      "question": "What visual change is presented on the security slide in the vibe-coding section?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 34, "modality": "visual", "terms": []}]
+    },
+    {
+      "id": "q12_not_covered",
+      "question": "What was the instructor's favorite programming language in high school?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [],
+      "expected_answer": "NOT_COVERED"
+    }
+  ]
+}
