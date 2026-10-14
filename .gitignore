@@ -19,6 +19,9 @@ renders/
 page_images/
 *.log
 
+# ---- private quiz keys: never publish answer keys ----
+results/quiz_key_*.json
+
 # ---- OS noise ----
 .DS_Store
 Thumbs.db
