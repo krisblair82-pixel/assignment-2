@@ -44,10 +44,26 @@ python ingest.py --dry-run  # inventory + page rendering, no network calls
 python ingest.py            # full ingest once materials/ has course files
 ```
 
+## Repeatable evaluation
+
+After the local index is built and `.env` contains the class API key, run the
+evaluation set and write a timestamped report with one command:
+
+```bash
+python run_evals.py
+```
+
+The runner reads `results/eval_questions.json`, checks hybrid retrieval and
+grounded-answer behavior, and saves a scrubbed report under
+`results/eval_YYYYMMDD_HHMMSS.json`. Reports contain source locations and
+metrics, but never raw model output or credentials. Use `--limit 1` for a
+single representative case while developing.
+
 ## Result files (committed evidence)
 - `connectivity_report.md` — initial service probes (routes + quirks found)
 - `results/smoke_*.json` — live smoke test results, timestamped
 - `results/inventory_*.json` — per-file ingest inventory, timestamped
+- `results/eval_*.json` — scrubbed retrieval and grounded-answer evaluation reports
 
 ## Known open items (honest status)
 - 9003 (visual embeddings) server went down during the skeleton smoke test; text+image embedding clients are schema-verified but the image path needs one end-to-end re-check when the server returns. 9002/9004/9005/9001 all pass live.

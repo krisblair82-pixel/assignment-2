@@ -83,3 +83,11 @@ def test_run_evals_writes_timestamped_artifact(monkeypatch, tmp_path):
     assert output_path.startswith(str(tmp_path))
     assert output_path.endswith(".json")
     assert report["summary"]["cases"] == 1
+
+
+def test_readme_documents_one_command_evaluation_invocation():
+    from pathlib import Path
+
+    readme = Path(__file__).resolve().parents[1] / "README.md"
+
+    assert "python run_evals.py" in readme.read_text(encoding="utf-8")
