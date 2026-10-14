@@ -57,7 +57,9 @@ def test_duplicate_citations_of_same_slide_are_collapsed(monkeypatch, tmp_path):
 def test_images_used_counts_only_images_sent_to_model(monkeypatch, tmp_path):
     setup_answer(monkeypatch, tmp_path, 'NOT_COVERED')
     result = answers.ask("Unrelated?", index_path="synthetic.json")
-    assert result["pages_used"] == 2
+    # the top text chunk cites slide 34 -> its image is attached first, then
+    # the visual hits fill the cap of 3
+    assert result["pages_used"] == 3
 
 
 def test_no_evidence_reports_zero_images(monkeypatch):
@@ -160,6 +162,73 @@ def test_image_only_slide_uses_its_image_not_another_slide_text(monkeypatch, tmp
     assert result["sources"][0]["slide"] == 34
     assert result["sources"][0]["image_path"] == images[0]["image_path"]
     assert "Security? Never heard" not in result["sources"][0]["excerpt"]
+
+
+class SequenceChat:
+    """FakeChat that returns a list of replies in order and counts calls."""
+
+    def __init__(self, replies):
+        self.replies = list(replies)
+        self.calls = 0
+
+    def complete(self, messages, max_tokens=None):
+        reply = self.replies[min(self.calls, len(self.replies) - 1)]
+        self.calls += 1
+        return reply
+
+
+def _setup_topic_chunk(monkeypatch, tmp_path, chunk, images):
+    """Evidence with a custom chunk; returns the SequenceChat instance."""
+    evidence = {"text_chunks": [chunk], "pages": images,
+                "legs": {"bm25": 1, "text_dense": 1, "visual": len(images),
+                         "rerank": 1}}
+    monkeypatch.setattr(answers, "ensure_configured", lambda: None)
+    monkeypatch.setattr(answers, "retrieve", lambda *args, **kwargs: evidence)
+    monkeypatch.setattr(answers, "_load_index", lambda *args: {"chunks": [chunk]})
+    chat = SequenceChat(["NOT_COVERED"])
+    monkeypatch.setattr(answers, "ChatClient", lambda: chat)
+    return chat
+
+
+def test_not_covered_with_matching_evidence_retries_once(monkeypatch, tmp_path):
+    """Flaky-boundary guard: when the evidence clearly matches the question,
+    a NOT_COVERED first answer triggers EXACTLY ONE retry, and a grounded
+    second answer is kept."""
+    doc = "week-2.pptx"
+    chunk = {"doc_id": doc, "page": None, "slide": 34, "section": None,
+             "text": "Vibe coding on prod requires review, security and testing."}
+    images = [{"doc_id": doc, "page": None, "slide": 34,
+               "image_path": str(tmp_path / "slide-34.png")}]
+    (tmp_path / "slide-34.png").write_bytes(b"png")
+    chat = _setup_topic_chunk(monkeypatch, tmp_path, chunk, images)
+    chat.replies = [
+        "NOT_COVERED",
+        json.dumps({"answer": "The meme slide is 34.",
+                    "sources": [{"doc_id": doc, "slide": 34,
+                                 "excerpt": "Vibe coding on prod"}]}),
+    ]
+    result = answers.ask("Vibe coding on prod meme slide?",
+                         index_path="synthetic.json")
+    assert chat.calls == 2
+    assert result["covered"] is True
+    assert result["sources"][0]["slide"] == 34
+
+
+def test_uncovered_question_does_not_retry(monkeypatch, tmp_path):
+    """A genuinely uncovered question (no keyword overlap with the evidence)
+    stays a clean NOT_COVERED with a single model call."""
+    doc = "week-2.pptx"
+    chunk = {"doc_id": doc, "page": None, "slide": 34, "section": None,
+             "text": "Security? Never heard of it... API keys maxed out."}
+    images = [{"doc_id": doc, "page": None, "slide": 34,
+               "image_path": str(tmp_path / "slide-34.png")}]
+    (tmp_path / "slide-34.png").write_bytes(b"png")
+    chat = _setup_topic_chunk(monkeypatch, tmp_path, chunk, images)
+    result = answers.ask("What was the instructor's favorite programming "
+                         "language in high school?", index_path="synthetic.json")
+    assert chat.calls == 1  # no retry
+    assert result["covered"] is False
+    assert result["answer"] == "NOT_COVERED"
 
 
 def test_cli_shows_image_evidence_path(monkeypatch, capsys, tmp_path):

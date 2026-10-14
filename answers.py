@@ -188,6 +188,28 @@ def ground(data: dict | None, chunks: list[dict],
     return {"answer": answer, "sources": kept}, issues
 
 
+def _evidence_strongly_matches(question: str, chunks: list[dict]) -> bool:
+    """Boundary guard: are the top chunks actually on-topic for the question?
+
+    Uses a simple keyword-overlap heuristic (>= 2 shared tokens of length >= 3)
+    so a NOT_COVERED model answer gets ONE retry when the evidence clearly
+    matches, while genuinely uncovered questions (no overlap) stay untouched.
+    """
+    q_tokens = set(re.findall(r"[a-z0-9']{3,}", question.lower()))
+    if not q_tokens:
+        return False
+    for c in chunks[:3]:
+        c_tokens = set(re.findall(r"[a-z0-9']{3,}", (c.get("text") or "").lower()))
+        if len(q_tokens & c_tokens) >= 2:
+            return True
+    return False
+
+
+RETRY_NUDGE = ("The evidence provided above contains relevant material for "
+               "this question. Review it again and answer from it if it covers "
+               "the question.")
+
+
 def ask(question: str, doc_filter: str | None = None,
         index_path: str | None = None) -> dict:
     ensure_configured()
@@ -203,7 +225,21 @@ def ask(question: str, doc_filter: str | None = None,
                     "schema_issues": [], "dropped_sources": [],
                     "note": "no evidence to answer from"}}
 
-    attached_pages = pages[:2]
+    # Attach the ORIGINAL page/slide images that correspond to the TOP text
+    # evidence (requirement 2a + meme test): the model must SEE the slide it
+    # is asked about. Visual ranking and text ranking can disagree, so the
+    # pages matching the top text chunks come first, then the top visual
+    # hits fill the remaining slots (cap 3 images - keeps output stable).
+    top_locs = [(c.get("doc_id"), c.get("page"), c.get("slide"))
+                for c in text_chunks[:3]]
+    matched = []
+    for loc in top_locs:
+        for p in pages:
+            if ((p.get("doc_id"), p.get("page"), p.get("slide")) == loc
+                    and p not in matched):
+                matched.append(p)
+                break
+    attached_pages = (matched + [p for p in pages if p not in matched])[:3]
     messages = build_messages(text_chunks, attached_pages, question)
     chat = ChatClient()
     raw = chat.complete(messages, max_tokens=MAX_TOKENS)
@@ -222,6 +258,31 @@ def ask(question: str, doc_filter: str | None = None,
             result = {"answer": "NOT_COVERED (answer had no verified sources)",
                       "sources": []}
             covered = False
+
+    # Flaky-boundary guard: the reasoning model occasionally answers
+    # NOT_COVERED even when the retrieved evidence clearly matches the
+    # question. Retry ONCE (with a neutral nudge) only when the top evidence
+    # shares >= 2 keyword tokens with the question - so the meme/meme-adjacent
+    # questions are reliable, while truly uncovered questions stay NOT_COVERED.
+    if not covered and _evidence_strongly_matches(question, text_chunks):
+        retry_messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": [
+                {"type": "text",
+                 "text": "Your previous answer was NOT_COVERED. " + RETRY_NUDGE},
+                *messages[1]["content"],
+            ]},
+        ]
+        raw2 = chat.complete(retry_messages, max_tokens=MAX_TOKENS)
+        data2 = ({"answer": "NOT_COVERED", "sources": []}
+                 if raw2.strip().upper() == "NOT_COVERED" else _extract_json(raw2))
+        result2, issues2 = ground(data2, _load_index(index_path).get("chunks", []),
+                                  images=attached_pages)
+        if result2 is not None:
+            covered2 = result2["answer"].strip().upper() != "NOT_COVERED"
+            if covered2 and result2["sources"]:
+                result, issues, covered = result2, issues + issues2, True
+                raw = f"{raw}\n--- retry ---\n{raw2}"
 
     for source in result["sources"]:
         # Gallery matching (requirement 2a): find the ORIGINAL page/slide image
