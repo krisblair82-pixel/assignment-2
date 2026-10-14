@@ -1,0 +1,123 @@
+{
+  "generated_at": "2026-10-14 11:15:19",
+  "eval_set": "eval_questions.json",
+  "index": "index.json",
+  "summary": {
+    "cases": 1,
+    "retrieval_hits": 1,
+    "grounded_answers": 1,
+    "not_covered_cases": 0,
+    "not_covered_passes": 0
+  },
+  "results": [
+    {
+      "id": "q01_open_weights",
+      "question": "What are two characteristics of open-weight LLMs?",
+      "retrieval": {
+        "source_hit": true,
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            4
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            11
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            28
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            3
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            25
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            2
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            40
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            4
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            24
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            22
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            8
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            13
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            23
+          ]
+        ]
+      },
+      "answer": {
+        "covered": true,
+        "returned_not_covered": false,
+        "expected_not_covered": false,
+        "grounded": true,
+        "source_locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            4
+          ]
+        ],
+        "schema_issue_count": 0
+      }
+    }
+  ]
+}
