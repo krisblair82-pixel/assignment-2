@@ -1,0 +1,58 @@
+{
+ "quiz_id": "20261014_145659",
+ "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+ "topic": null,
+ "n": 5,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "Based on the 'Topics' slide, which of the following is NOT listed as a topic for this session?",
+   "options": [
+    "A. Large Language Models (LLMs) for Coding",
+    "B. Vibe Coding Overview",
+    "C. Vibe Coding Interfaces",
+    "D. Open- vs. Closed-Weight LLMs"
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "According to the slide 'Open- vs. Closed-Weight LLMs', which of the following is a characteristic of Open-Weights models?",
+   "options": [
+    "A. Higher performing frontier models",
+    "B. Variable costs/credit allowances",
+    "C. Reproducible and private (if local)",
+    "D. Easier to use/deploy via interfaces and/or APIs"
+   ]
+  },
+  {
+   "id": "q3",
+   "question": "Which of the following is listed as a characteristic of Closed-Weights models?",
+   "options": [
+    "A. Free to download",
+    "B. Run locally",
+    "C. Variable costs/credit allowances",
+    "D. Reproducible and private (if local)"
+   ]
+  },
+  {
+   "id": "q4",
+   "question": "How does the course material define APIs in the footnote of the 'Open- vs. Closed-Weight LLMs' slide?",
+   "options": [
+    "A. They are physical interfaces for running models locally.",
+    "B. They let you send requests to an LLM service and receive model responses programmatically.",
+    "C. They are platforms for downloading open-weight models.",
+    "D. They are tools for vibe coding."
+   ]
+  },
+  {
+   "id": "q5",
+   "question": "Which of the following models is listed as an example of a Closed-Weights model in the slide visuals?",
+   "options": [
+    "A. Qwen",
+    "B. deepseek",
+    "C. Claude",
+    "D. ModelScope"
+   ]
+  }
+ ]
+}

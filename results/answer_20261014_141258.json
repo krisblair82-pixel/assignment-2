@@ -1,0 +1,27 @@
+{
+ "question": "The assignment asks to find the meme about Vibe Coding on \"Prod\" in the Week 2 slides. Which slide shows it, what format is the meme, and what does it say?",
+ "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+ "covered": true,
+ "answer": "The meme about Vibe Coding on \"Prod\" is found on **page 33** of the document. It is presented as a **picture**. The title of the slide is \"Vibe Coding on \u201cProd\u201d\".",
+ "sources": [
+  {
+   "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+   "page": 33,
+   "slide": null,
+   "section": null,
+   "excerpt": "[{\"bbox\": [43, 35, 697, 103], \"category\": \"Title\", \"text\": \"Vibe Coding on \u201cProd\u201d\"}, {\"bbox\": [197, 117, 1143, 671], \"category\": \"Picture\"}, {\"bbox\": [24, 677, 80, 731], \"category\": \"Picture\"}, {\"bbox\": [87, 684, 362, 713], \"category\": \"Page-footer\", \"text\": \"University of Colorado Boulder\"}]"
+  }
+ ],
+ "legs": {
+  "bm25": 8,
+  "text_dense": 8,
+  "visual": 8,
+  "rerank": 8
+ },
+ "pages_used": 2,
+ "validation": {
+  "schema_issues": [],
+  "dropped_sources": []
+ },
+ "raw_model_output": "\n\n{\n\"answer\": \"The meme about Vibe Coding on \\\"Prod\\\" is found on **page 33** of the document. It is presented as a **picture**. The title of the slide is \\\"Vibe Coding on \u201cProd\u201d\\\".\",\n\"sources\": [\n{\n\"doc_id\": \"MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf\",\n\"page\": 33,\n\"slide\": null,\n\"section\": null,\n\"excerpt\": \"Vibe Coding on \u201cProd\u201d\"\n}\n]\n}"
+}

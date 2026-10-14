@@ -1,0 +1,58 @@
+{
+ "quiz_id": "20261014_144751",
+ "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+ "topic": null,
+ "n": 5,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "Which of the following topics is NOT listed on the 'Topics' slide for this session?",
+   "options": [
+    "A. Large Language Models (LLMs) for Coding",
+    "B. Vibe Coding Overview",
+    "C. Vibe Coding Interfaces",
+    "D. Advanced Neural Network Architecture"
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "According to the lecture, which of the following is a characteristic of Open-Weights LLMs?",
+   "options": [
+    "A. They are higher performing frontier models",
+    "B. They are free to download",
+    "C. They have variable costs/credit allowances",
+    "D. They are easier to use/deploy via interfaces"
+   ]
+  },
+  {
+   "id": "q3",
+   "question": "Which of the following is a characteristic of Closed-Weights LLMs?",
+   "options": [
+    "A. They are free to download",
+    "B. They are reproducible and private (if local)",
+    "C. They are higher performing frontier models",
+    "D. They are easier to run locally"
+   ]
+  },
+  {
+   "id": "q4",
+   "question": "How does the lecture footnote define APIs in the context of LLMs?",
+   "options": [
+    "A. A method to download models for free",
+    "B. A tool to run models locally without internet",
+    "C. A way to send requests to an LLM service and receive model responses programmatically",
+    "D. A specific type of closed-weight model"
+   ]
+  },
+  {
+   "id": "q5",
+   "question": "Who is the instructor for the course 'MBAX 6418 LLM Fundamentals: Models, APIs, and Interfaces'?",
+   "options": [
+    "A. David Dobolyi, PhD",
+    "B. University of Colorado Boulder",
+    "C. Stone Family Faculty Scholar",
+    "D. Leeds School of Business"
+   ]
+  }
+ ]
+}

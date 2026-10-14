@@ -145,43 +145,59 @@ def _rrf_rank(lists_of_ids: list[list[str]]) -> list[tuple[str, float]]:
     return sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
 
 
+_ALL_LEGS = {"bm25", "text", "visual", "rerank"}
+
+
 def retrieve(query: str, doc_filter: str | None = None, k: int = 8,
-             index_path: str = None) -> dict:
+             index_path: str = None, enabled_legs: set | None = None) -> dict:
     """Hybrid retrieval. Returns {'text_chunks': [...], 'pages': [...]} with
     fused/reranked ordering and metadata. Resilient: any leg may fail and the
-    others still return (the caller sees which legs contributed)."""
+    others still return (the caller sees which legs contributed).
+
+    enabled_legs: subset of {'bm25', 'text', 'visual', 'rerank'} to run.
+    None runs all legs (full hybrid); {'bm25'} is the keyword-only baseline
+    used in the design comparison (issue #5).
+    """
     ensure_configured()
+    enabled = set(enabled_legs) if enabled_legs is not None else set(_ALL_LEGS)
+    invalid = enabled - _ALL_LEGS
+    if invalid:
+        raise ValueError(f"unknown legs: {sorted(invalid)} (allowed: {sorted(_ALL_LEGS)})")
     index_path = index_path or os.path.join(INDEX_DIR, "index.json")
     data = _load_index(index_path) if os.path.exists(index_path) else {"chunks": [], "pages": []}
     if not data.get("chunks") and not data.get("pages"):
         print(f"[warn] index file '{index_path}' has no chunks/pages - did you run "
               f"'python retrieval.py build --index {index_path}' after ingesting?")
     chunks, pages = data.get("chunks", []), data.get("pages", [])
-    client = chromadb.PersistentClient(path=CHROMA_DIR)
+    text_col = None
+    if "text" in enabled:
+        client = chromadb.PersistentClient(path=CHROMA_DIR)
+        try:
+            text_col = client.get_collection(TEXT_COLLECTION)
+        except Exception:  # noqa: BLE001
+            text_col = None
+    else:
+        client = None
     legs = {"bm25": 0, "text_dense": 0, "visual": 0, "rerank": 0}
-
-    try:
-        text_col = client.get_collection(TEXT_COLLECTION)
-    except Exception:  # noqa: BLE001
-        text_col = None
 
     # ---- leg 1: bm25 ----
     bm25_hits: list[str] = []
-    try:
-        bm25 = bm25s.BM25.load(BM25_DIR, load_corpus=False)
-        results, scores = bm25.retrieve(bm25s.tokenize([query], stopwords="en"),
-                                       k=len(chunks) if doc_filter else k)
-        idxs = results[0].tolist()
-        bm25_hits = [f"t{i}" for i in idxs if isinstance(i, int)
-                     and 0 <= i < len(chunks)
-                     and (not doc_filter or chunks[i].get("doc_id") == doc_filter)][:k]
-        legs["bm25"] = len(bm25_hits)
-    except Exception as e:  # noqa: BLE001
-        print(f"[warn] bm25 leg failed: {type(e).__name__}: {e}")
+    if "bm25" in enabled:
+        try:
+            bm25 = bm25s.BM25.load(BM25_DIR, load_corpus=False)
+            results, scores = bm25.retrieve(bm25s.tokenize([query], stopwords="en"),
+                                           k=len(chunks) if doc_filter else k)
+            idxs = results[0].tolist()
+            bm25_hits = [f"t{i}" for i in idxs if isinstance(i, int)
+                         and 0 <= i < len(chunks)
+                         and (not doc_filter or chunks[i].get("doc_id") == doc_filter)][:k]
+            legs["bm25"] = len(bm25_hits)
+        except Exception as e:  # noqa: BLE001
+            print(f"[warn] bm25 leg failed: {type(e).__name__}: {e}")
 
     # ---- leg 2: dense text ----
     dense_text_hits: list[str] = []
-    if text_col is not None and chunks:
+    if "text" in enabled and text_col is not None and chunks:
         try:
             qv = TextEmbedder().embed([query])[0]
             where = {"doc_id": doc_filter} if doc_filter else None
@@ -193,16 +209,17 @@ def retrieve(query: str, doc_filter: str | None = None, k: int = 8,
 
     # ---- leg 3: visual ----
     page_hits: list[str] = []
-    try:
-        pages_col = client.get_collection(PAGES_COLLECTION)
-        if pages_col.count() > 0:
-            qv = VisualEmbedder().embed(texts=[query])[0]
-            where = {"doc_id": doc_filter} if doc_filter else None
-            res = pages_col.query(query_embeddings=[qv], n_results=k, where=where)
-            page_hits = res["ids"][0]
-            legs["visual"] = len(page_hits)
-    except Exception as e:  # noqa: BLE001
-        print(f"[warn] visual leg failed: {type(e).__name__}: {e}")
+    if "visual" in enabled and client is not None:
+        try:
+            pages_col = client.get_collection(PAGES_COLLECTION)
+            if pages_col.count() > 0:
+                qv = VisualEmbedder().embed(texts=[query])[0]
+                where = {"doc_id": doc_filter} if doc_filter else None
+                res = pages_col.query(query_embeddings=[qv], n_results=k, where=where)
+                page_hits = res["ids"][0]
+                legs["visual"] = len(page_hits)
+        except Exception as e:  # noqa: BLE001
+            print(f"[warn] visual leg failed: {type(e).__name__}: {e}")
 
     # ---- fusion (RRF) + rerank ----
     fused = _rrf_rank([bm25_hits, dense_text_hits])
@@ -210,7 +227,7 @@ def retrieve(query: str, doc_filter: str | None = None, k: int = 8,
     page_ids = page_hits  # single leg: keep as-is
 
     reranked: list[str] = top_text_ids
-    if top_text_ids and chunks:
+    if "rerank" in enabled and top_text_ids and chunks:
         try:
             id_to_text = {f"t{i}": c["text"] for i, c in enumerate(chunks)}
             docs = [id_to_text[cid] for cid in top_text_ids if cid in id_to_text]

@@ -62,6 +62,10 @@ def find_soffice() -> str | None:
         r"C:\Program Files\LibreOffice\program\soffice.exe",
         r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
         "/usr/bin/soffice", "/opt/libreoffice/program/soffice",
+        # macOS
+        "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+        # Homebrew (macOS / Linux)
+        "/opt/homebrew/bin/soffice", "/usr/local/bin/soffice",
     ]
     for c in candidates:
         if os.path.exists(c):
@@ -69,8 +73,80 @@ def find_soffice() -> str | None:
     return None
 
 
+def _run_applescript(script: str, timeout: int = 240) -> None:
+    """Run an osascript snippet; raise RuntimeError on failure."""
+    import subprocess
+    proc = subprocess.run(["osascript", "-e", script], capture_output=True,
+                          text=True, timeout=timeout)
+    if proc.returncode != 0:
+        raise RuntimeError(f"osascript failed: {proc.stderr.strip()[:300]}")
+
+
+def _keynote_convert_pptx_to_pdf(pptx_path: str, out_pdf: str) -> bool:
+    """Render a PPTX to PDF through Keynote (macOS only).
+
+    Keynote is a GUI app: this briefly launches it and may flash on screen.
+    Returns True on success, False if Keynote is unavailable.
+    """
+    import subprocess
+    if os.name == "nt":
+        return False
+    try:
+        subprocess.run(["osascript", "-e", "tell application \"System Events\" to get name of every application process whose name is \"Keynote\""],
+                       capture_output=True, timeout=30)
+    except Exception:  # noqa: BLE001
+        pass
+    if not os.path.exists("/Applications/Keynote.app"):
+        return False
+    script = (
+        'tell application "Keynote"\n'
+        f'  set theDoc to open POSIX file "{pptx_path}"\n'
+        "  delay 3\n"
+        f'  export theDoc to POSIX file "{out_pdf}" as PDF\n'
+        "  close theDoc saving no\n"
+        "end tell"
+    )
+    try:
+        _run_applescript(script, timeout=300)
+        return os.path.isfile(out_pdf) and os.path.getsize(out_pdf) > 0
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _macos_powerpoint_convert_pptx_to_pdf(pptx_path: str, out_pdf: str) -> bool:
+    """Render a PPTX to PDF through Microsoft PowerPoint for Mac.
+
+    Same caveats as Keynote: the app briefly launches. Returns False when
+    PowerPoint is unavailable or the conversion fails.
+    """
+    import subprocess
+    if os.name == "nt":
+        return False
+    probe = subprocess.run(
+        ["osascript", "-e",
+         'tell application "System Events" to get name of every application process whose name is "Microsoft PowerPoint"'],
+        capture_output=True, timeout=30, text=True)
+    if probe.returncode != 0 or "Microsoft PowerPoint" not in probe.stdout:
+        return False
+    script = (
+        'tell application "Microsoft PowerPoint"\n'
+        f'  open POSIX file "{pptx_path}"\n'
+        "  delay 3\n"
+        "  set thePres to active presentation\n"
+        f'  save thePres in POSIX file "{out_pdf}" as save as PDF\n'
+        "  close thePres\n"
+        "end tell"
+    )
+    try:
+        _run_applescript(script, timeout=300)
+        return os.path.isfile(out_pdf) and os.path.getsize(out_pdf) > 0
+    except Exception:  # noqa: BLE001
+        return False
+
+
+
 def render_pptx_slides(pptx_path: str, out_dir: str) -> tuple[list[dict], str | None]:
-    """Slide text via python-pptx; images via LibreOffice or Windows PowerPoint.
+    """Slide text via python-pptx; images via LibreOffice, PowerPoint, or Keynote.
     Returns (slides, warning) where slides have {slide, text, image_path?}."""
     from pptx import Presentation
 
@@ -116,7 +192,19 @@ def render_pptx_slides(pptx_path: str, out_dir: str) -> tuple[list[dict], str | 
                 slide["image_path"] = None
             return slides, "PowerPoint rendering failed - text only."
     if soffice is None:
-        return slides, "LibreOffice/PowerPoint unavailable - text only."
+        # macOS fallbacks: Keynote first, then Microsoft PowerPoint.
+        pdf_path = os.path.join(out_dir, f"{base}.pdf")
+        converted = (_keynote_convert_pptx_to_pdf(pptx_path, pdf_path)
+                     or _macos_powerpoint_convert_pptx_to_pdf(pptx_path, pdf_path))
+        if converted and os.path.exists(pdf_path):
+            page_imgs = render_pdf_pages(pdf_path, out_dir)
+            if len(page_imgs) == len(slides):
+                for slide, page in zip(slides, page_imgs):
+                    slide["image_path"] = page["image_path"]
+                return slides, "Rendered via Keynote/PowerPoint (macOS); LibreOffice recommended for headless use."
+            os.remove(pdf_path)
+        return slides, ("No LibreOffice/PowerPoint/Keynote available - text only. "
+                        "Export the deck to PDF manually for slide images.")
 
     pdf_path = os.path.join(out_dir, f"{base}.pdf")
     import subprocess
@@ -193,6 +281,66 @@ def slugify(name: str) -> str:
 
 # ---------------------------------------------------------------- pipeline
 
+def process_file(f: str, parser, dry_run: bool) -> tuple[list[dict], list[dict], dict]:
+    """Process ONE course file -> (chunks, pages, inventory_entry).
+
+    Extracted from ingest() so the app's document management (documents.py)
+    can add a single uploaded file without re-processing the whole library.
+    """
+    ext = os.path.splitext(f)[1].lower()
+    doc_id = slugify(os.path.relpath(f, MATERIALS_DIR))
+    print(f"\n== {os.path.basename(f)}  ({ext})")
+    entry = {"file": os.path.basename(f), "doc_id": doc_id, "format": ext,
+             "pages": 0, "chunks": 0, "images": 0, "warning": None}
+    chunks, pages = [], []
+    if ext == ".pdf":
+        rendered = render_pdf_pages(f, RENDERS_DIR)
+        blocks = []
+        for r in rendered:
+            text = parse_page_text(r["image_path"], parser, dry_run) or r["embedded_text"]
+            blocks.append({"page": r["page"], "text": text})
+            pages.append({"doc_id": doc_id, "page": r["page"],
+                          "image_path": r["image_path"]})
+        entry["pages"] = len(rendered)
+        entry["images"] = len(rendered)
+        chunks = chunk_texts(blocks, doc_id, "page")
+    elif ext == ".pptx":
+        slides, warning = render_pptx_slides(f, RENDERS_DIR)
+        entry["warning"] = warning
+        blocks = []
+        for s in slides:
+            text = s["text"]
+            if s["image_path"] and not dry_run:
+                parsed = parse_page_text(s["image_path"], parser, dry_run)
+                text = parsed or text
+            blocks.append({"slide": s["slide"], "text": text})
+            if s["image_path"]:
+                pages.append({"doc_id": doc_id, "slide": s["slide"],
+                              "image_path": s["image_path"]})
+        entry["pages"] = len(slides)
+        entry["images"] = sum(1 for s in slides if s["image_path"])
+        chunks = chunk_texts(blocks, doc_id, "slide")
+    elif ext == ".docx":
+        blocks = extract_docx_sections(f)
+        entry["pages"] = len(blocks)
+        chunks = chunk_texts(blocks, doc_id, "section")
+    elif ext in (".txt", ".md"):
+        with open(f, encoding="utf-8", errors="replace") as fh:
+            chunks = chunk_texts([{"text": fh.read(), "section": None}], doc_id, "section")
+        entry["pages"] = 1
+    else:  # standalone images (.png/.jpg/.jpeg)
+        parsed = parse_page_text(f, parser, dry_run) if not dry_run else ""
+        pages.append({"doc_id": doc_id, "page": 1, "image_path": f})
+        if parsed:
+            chunks = chunk_texts([{"page": 1, "text": parsed}], doc_id, "image")
+        entry["pages"] = 1
+        entry["images"] = 1
+
+    entry["chunks"] = len(chunks)
+    print(f"  pages/sections: {entry['pages']}  chunks: {entry['chunks']}  images: {entry['images']}")
+    return chunks, pages, entry
+
+
 def ingest(materials_dir: str, dry_run: bool = False) -> dict:
     os.makedirs(RENDERS_DIR, exist_ok=True)
     os.makedirs(INDEX_DIR, exist_ok=True)
@@ -213,69 +361,18 @@ def ingest(materials_dir: str, dry_run: bool = False) -> dict:
     unsupported = []
 
     for f in files:
-        ext = os.path.splitext(f)[1].lower()
-        doc_id = slugify(os.path.relpath(f, materials_dir))
-        print(f"\n== {os.path.basename(f)}  ({ext})")
-        entry = {"file": os.path.basename(f), "doc_id": doc_id, "format": ext,
-                 "pages": 0, "chunks": 0, "images": 0, "warning": None}
         try:
-            if ext == ".pdf":
-                rendered = render_pdf_pages(f, RENDERS_DIR)
-                blocks = []
-                for r in rendered:
-                    text = parse_page_text(r["image_path"], parser, dry_run) or r["embedded_text"]
-                    blocks.append({"page": r["page"], "text": text})
-                    pages.append({"doc_id": doc_id, "page": r["page"],
-                                  "image_path": r["image_path"]})
-                entry["pages"] = len(rendered)
-                entry["images"] = len(rendered)
-                chunks = chunk_texts(blocks, doc_id, "page")
-            elif ext == ".pptx":
-                slides, warning = render_pptx_slides(f, RENDERS_DIR)
-                entry["warning"] = warning
-                blocks = []
-                for s in slides:
-                    text = s["text"]
-                    if s["image_path"] and not dry_run:
-                        parsed = parse_page_text(s["image_path"], parser, dry_run)
-                        text = parsed or text
-                    blocks.append({"slide": s["slide"], "text": text})
-                    if s["image_path"]:
-                        pages.append({"doc_id": doc_id, "slide": s["slide"],
-                                      "image_path": s["image_path"]})
-                entry["pages"] = len(slides)
-                entry["images"] = sum(1 for s in slides if s["image_path"])
-                chunks = chunk_texts(blocks, doc_id, "slide")
-            elif ext == ".docx":
-                blocks = extract_docx_sections(f)
-                entry["pages"] = len(blocks)
-                chunks = chunk_texts(blocks, doc_id, "section")
-            elif ext in (".txt", ".md"):
-                with open(f, encoding="utf-8", errors="replace") as fh:
-                    chunks = chunk_texts([{"text": fh.read(), "section": None}], doc_id, "section")
-                entry["pages"] = 1
-            else:  # standalone images (.png/.jpg/.jpeg)
-                if not dry_run:
-                    parsed = parse_page_text(f, parser, dry_run)
-                else:
-                    parsed = ""
-                rel = os.path.relpath(f, REPO_ROOT)
-                pages.append({"doc_id": doc_id, "page": 1, "image_path": f})
-                if parsed:
-                    chunks = chunk_texts([{"page": 1, "text": parsed}], doc_id, "image")
-                else:
-                    chunks = []
-                entry["pages"] = 1
-                entry["images"] = 1
-
-            entry["chunks"] = len(chunks)
+            chunks, page_list, entry = process_file(f, parser, dry_run)
             all_chunks.extend(chunks)
+            pages.extend(page_list)
             inventory["files"].append(entry)
-            print(f"  pages/sections: {entry['pages']}  chunks: {entry['chunks']}  images: {entry['images']}")
         except Exception as e:  # noqa: BLE001
-            entry["error"] = str(e)[:200]
+            entry = {"file": os.path.basename(f),
+                     "doc_id": slugify(os.path.relpath(f, materials_dir)),
+                     "format": os.path.splitext(f)[1].lower(),
+                     "error": str(e)[:200]}
             inventory["files"].append(entry)
-            print(f"  FAILED: {e}")
+            print(f"== {os.path.basename(f)} FAILED: {e}")
 
     # write index + inventory (results/ is committed evidence; index/ is regenerable)
     index_path = os.path.join(INDEX_DIR, "index.json")

@@ -1,0 +1,58 @@
+{
+ "quiz_id": "20261014_144107",
+ "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+ "topic": null,
+ "n": 5,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "What is the subtitle of the MBAX 6418 course presented in the lecture title slide?",
+   "options": [
+    "A. Deep Learning for Business",
+    "B. Models, APIs, and Interfaces",
+    "C. Python Programming Basics",
+    "D. Natural Language Processing 101"
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "Which of the following topics is listed on the 'Topics' slide?",
+   "options": [
+    "A. Computer Vision Fundamentals",
+    "B. Database Management Systems",
+    "C. Vibe Coding Interfaces",
+    "D. Cybersecurity Protocols"
+   ]
+  },
+  {
+   "id": "q3",
+   "question": "According to the 'Open- vs. Closed-Weight LLMs' slide, which of the following is a characteristic of Open-Weights models?",
+   "options": [
+    "A. They are higher performing frontier models",
+    "B. They are free to download",
+    "C. They have variable costs/credit allowances",
+    "D. They are easier to use/deploy via interfaces"
+   ]
+  },
+  {
+   "id": "q4",
+   "question": "Which of the following is listed as a characteristic of Closed-Weights models?",
+   "options": [
+    "A. Reproducible and private (if local)",
+    "B. Higher performing frontier models",
+    "C. Free to download",
+    "D. Run locally or via cloud application programming interfaces (APIs)"
+   ]
+  },
+  {
+   "id": "q5",
+   "question": "How does the footnote on the 'Open- vs. Closed-Weight LLMs' slide define APIs?",
+   "options": [
+    "A. They are physical ports used to connect hardware",
+    "B. They let you send requests to an LLM service and receive model responses programmatically",
+    "C. They are only available for open-source models",
+    "D. They are software used to print code"
+   ]
+  }
+ ]
+}

@@ -6,8 +6,8 @@
 CLASS_API_KEY=sk-class-api-key-dummy-value
 
 # Class model API endpoints (see class handout "Class Model API Endpoints")
-LLM_BASE=http://localhost:9001/v1          # Vision LLM (Qwen3.6-35B-A3B)
-TEXT_EMBED_BASE=http://localhost:9002      # Text embeddings (Nemotron-3-Embed-1B)
-VISUAL_EMBED_BASE=http://localhost:9003/v1 # Visual embeddings (Qwen3-VL-Embedding-2B)  NOTE: embeddings route is POST /embeddings (no /v1)
-RERANK_BASE=http://localhost:9004          # Multimodal rerank (Qwen3-VL-Reranker-2B)  route: POST /v1/rerank
-PARSE_BASE=http://localhost:9005/v1        # Document parsing (dots.mocr)
+LLM_BASE=http://dobolyi.com:9001/v1          # Vision LLM (Qwen3.6-35B-A3B)
+TEXT_EMBED_BASE=http://dobolyi.com:9002      # Text embeddings (Nemotron-3-Embed-1B)
+VISUAL_EMBED_BASE=http://dobolyi.com:9003/v1 # Visual embeddings (Qwen3-VL-Embedding-2B)  NOTE: embeddings route is POST /embeddings (no /v1)
+RERANK_BASE=http://dobolyi.com:9004          # Multimodal rerank (Qwen3-VL-Reranker-2B)  route: POST /v1/rerank
+PARSE_BASE=http://dobolyi.com:9005/v1        # Document parsing (dots.mocr)

@@ -1,0 +1,58 @@
+{
+ "quiz_id": "20261014_144928",
+ "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+ "topic": null,
+ "n": 5,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "Which of the following is NOT listed as a topic for the session in the provided course material?",
+   "options": [
+    "A. Large Language Models (LLMs) for Coding",
+    "B. Vibe Coding Overview",
+    "C. Vibe Coding Interfaces",
+    "D. Advanced Neural Network Architecture"
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "According to the slide comparing Open- vs. Closed-Weight LLMs, which of the following is a characteristic of Open-Weights models?",
+   "options": [
+    "A. They are higher performing frontier models",
+    "B. They are free to download",
+    "C. They have variable costs/credit allowances",
+    "D. They are easier to use/deploy via interfaces"
+   ]
+  },
+  {
+   "id": "q3",
+   "question": "Which of the following is a characteristic of Closed-Weights models as described in the course material?",
+   "options": [
+    "A. They are reproducible and private (if local)",
+    "B. They are free to download",
+    "C. They are higher performing frontier models",
+    "D. They can be run locally without cost"
+   ]
+  },
+  {
+   "id": "q4",
+   "question": "Based on the logos and text on the 'Open- vs. Closed-Weight LLMs' slide, which of the following is categorized under Closed-Weights?",
+   "options": [
+    "A. Hugging Face",
+    "B. OpenRouter",
+    "C. Claude",
+    "D. ModelScope"
+   ]
+  },
+  {
+   "id": "q5",
+   "question": "According to the footnote on the slide, what is the function of open and closed APIs?",
+   "options": [
+    "A. They allow users to download models for free.",
+    "B. They let you send requests to an LLM service and receive model responses programmatically.",
+    "C. They allow users to run models locally without internet access.",
+    "D. They provide variable costs/credit allowances for open models."
+   ]
+  }
+ ]
+}

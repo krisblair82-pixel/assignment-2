@@ -1,80 +1,378 @@
 {
-  "schema_version": 1,
-  "description": "Small, reviewable gold set for MBAX 6418 hybrid retrieval and grounded-answer checks.",
-  "source_doc": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+  "schema_version": 2,
+  "description": "Gold set for MBAX 6418 hybrid retrieval and grounded-answer checks. Covers Week 2 slides (text + visuals incl. the required 'Vibe Coding on Prod' meme), Week 3 Prompt Engineering slides, and the syllabus. One question (q12) is intentionally unanswerable from the materials.",
+  "doc_ids": {
+    "week2": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+    "week3": "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pdf",
+    "syllabus": "MBAX_6418_Syllabus_Fall_2026.pdf"
+  },
   "questions": [
     {
       "id": "q01_open_weights",
       "question": "What are two characteristics of open-weight LLMs?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 4, "modality": "text", "terms": ["Free to download", "Reproducible and private"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 4,
+          "modality": "text",
+          "terms": [
+            "Free to download",
+            "Reproducible and private"
+          ]
+        },
+        {
+          "page": 4,
+          "modality": "text"
+        },
+        {
+          "slide": 4,
+          "page": 4,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q02_training_data",
       "question": "What must models be pretrained on, according to the materials?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 5, "modality": "text", "terms": ["large corpuses of data"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 5,
+          "modality": "text",
+          "terms": [
+            "large corpuses of data"
+          ]
+        },
+        {
+          "page": 5,
+          "modality": "text"
+        },
+        {
+          "slide": 5,
+          "page": 5,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q03_model_size",
       "question": "What tradeoffs should be considered when choosing model size?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 6, "modality": "text", "terms": ["size", "knowledge", "performance", "cost"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 6,
+          "modality": "text",
+          "terms": [
+            "size",
+            "knowledge",
+            "performance",
+            "cost"
+          ]
+        },
+        {
+          "page": 6,
+          "modality": "text"
+        },
+        {
+          "slide": 6,
+          "page": 6,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q04_context_window",
       "question": "What does context length provide to a language model?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 8, "modality": "text", "terms": ["working memory", "context window"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 8,
+          "modality": "text",
+          "terms": [
+            "working memory",
+            "context window"
+          ]
+        },
+        {
+          "page": 8,
+          "modality": "text"
+        },
+        {
+          "slide": 8,
+          "page": 8,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q05_prompt_caching",
       "question": "How does prompt caching improve performance across requests?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 12, "modality": "text", "terms": ["KV cache", "reused across requests"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 12,
+          "modality": "text",
+          "terms": [
+            "KV cache",
+            "reused across requests"
+          ]
+        },
+        {
+          "page": 12,
+          "modality": "text"
+        },
+        {
+          "slide": 12,
+          "page": 12,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q06_quantization",
       "question": "What is quantization intended to do to model parameters?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 15, "modality": "text", "terms": ["smaller", "faster"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 15,
+          "modality": "text",
+          "terms": [
+            "smaller",
+            "faster"
+          ]
+        },
+        {
+          "page": 15,
+          "modality": "text"
+        },
+        {
+          "slide": 15,
+          "page": 15,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q07_moe",
       "question": "What does MoE stand for in the model-types discussion?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 17, "modality": "text", "terms": ["Mixture of Experts"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 17,
+          "modality": "text",
+          "terms": [
+            "Mixture of Experts"
+          ]
+        },
+        {
+          "page": 17,
+          "modality": "text"
+        },
+        {
+          "slide": 17,
+          "page": 17,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q08_vibe_vs_agentic",
       "question": "How do vibe coding and agentic coding differ in terms of autonomy?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 30, "modality": "text", "terms": ["Human-in-the-loop", "Autonomous"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 30,
+          "modality": "text",
+          "terms": [
+            "Human-in-the-loop",
+            "Autonomous"
+          ]
+        },
+        {
+          "page": 30,
+          "modality": "text"
+        },
+        {
+          "slide": 30,
+          "page": 30,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q09_interface_choice",
       "question": "What determines the choice of interface when getting started with vibe coding?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 36, "modality": "text", "terms": ["personal preference"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 36,
+          "modality": "text",
+          "terms": [
+            "personal preference"
+          ]
+        },
+        {
+          "page": 36,
+          "modality": "text"
+        },
+        {
+          "slide": 36,
+          "page": 36,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q10_mcp_visual",
       "question": "What kinds of add-ons can Model Context Protocol interfaces access?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 42, "modality": "text", "terms": ["Tools", "Data", "APIs"]}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 42,
+          "modality": "text",
+          "terms": [
+            "Tools",
+            "Data",
+            "APIs"
+          ]
+        },
+        {
+          "page": 42,
+          "modality": "text"
+        },
+        {
+          "slide": 42,
+          "page": 42,
+          "modality": "text"
+        }
+      ]
     },
     {
       "id": "q11_open_closed_visual",
       "question": "What two categories are contrasted on slide 4's open/closed-weights comparison?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 4, "modality": "visual", "terms": []}]
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 4,
+          "modality": "visual",
+          "terms": []
+        },
+        {
+          "page": 4,
+          "modality": "visual"
+        },
+        {
+          "slide": 4,
+          "page": 4,
+          "modality": "visual"
+        }
+      ]
     },
     {
       "id": "q12_not_covered",
       "question": "What was the instructor's favorite programming language in high school?",
-      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [],
-      "expected_answer": "NOT_COVERED"
+      "expected_answer": "NOT_COVERED",
+      "expected_sources": []
+    },
+    {
+      "id": "q13_meme_prod",
+      "question": "The assignment asks to find the meme about Vibe Coding on \"Prod\" in the Week 2 slides. Which slide shows it, what format is the meme, and what does it say?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+      "expected_sources": [
+        {
+          "slide": 33,
+          "modality": "visual",
+          "terms": [
+            "One does not simply",
+            "vibe code",
+            "production"
+          ]
+        },
+        {
+          "page": 33,
+          "modality": "visual"
+        },
+        {
+          "slide": 33,
+          "page": 33,
+          "modality": "visual"
+        }
+      ]
+    },
+    {
+      "id": "q14_syllabus_grading",
+      "question": "According to the syllabus, what percentage of the final grade comes from quizzes?",
+      "doc_filter": "MBAX_6418_Syllabus_Fall_2026.pdf",
+      "expected_sources": [
+        {
+          "page": 2,
+          "modality": "text",
+          "terms": [
+            "Quizzes",
+            "15%"
+          ]
+        },
+        {
+          "slide": 2,
+          "modality": "text"
+        },
+        {
+          "page": 2,
+          "slide": 2,
+          "modality": "text"
+        }
+      ]
+    },
+    {
+      "id": "q15_syllabus_office_hours",
+      "question": "When does Professor Dobolyi hold office hours?",
+      "doc_filter": "MBAX_6418_Syllabus_Fall_2026.pdf",
+      "expected_sources": [
+        {
+          "page": 1,
+          "modality": "text",
+          "terms": [
+            "Tuesdays and Fridays",
+            "11am to 12pm",
+            "Zoom"
+          ]
+        },
+        {
+          "slide": 1,
+          "modality": "text"
+        },
+        {
+          "page": 1,
+          "slide": 1,
+          "modality": "text"
+        }
+      ]
+    },
+    {
+      "id": "q16_week3_prompts",
+      "question": "According to the Week 3 slides, what kinds of content can prompts consist of, besides text?",
+      "doc_filter": "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pdf",
+      "expected_sources": [
+        {
+          "slide": 4,
+          "modality": "text",
+          "terms": [
+            "multimodal",
+            "images",
+            "audio",
+            "video"
+          ]
+        },
+        {
+          "page": 4,
+          "modality": "text"
+        },
+        {
+          "slide": 4,
+          "page": 4,
+          "modality": "text"
+        }
+      ]
     }
   ]
 }
