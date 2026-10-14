@@ -6,6 +6,7 @@ import os
 
 import gradio as gr
 
+import documents
 from answers import ask as grounded_ask
 from config import INDEX_DIR
 from quiz import generate_quiz as generate_quiz_backend, score_quiz as score_quiz_backend
@@ -13,25 +14,19 @@ from quiz import generate_quiz as generate_quiz_backend, score_quiz as score_qui
 
 TITLE = "MBAX 6418 Course Assistant"
 ACCEPTED_FORMATS = (
-    "**Accepted course-material formats:** PDF, PowerPoint (`.pptx`, `.ppt`), "
-    "Word (`.docx`), and plain text (`.txt`). Add files to the local "
-    "`materials/` folder and run ingestion before using the assistant."
+    "**Accepted course-material formats:** PDF, PowerPoint (`.pptx`), Word "
+    "(`.docx`), plain text (`.txt`/`.md`), and standalone images (`.png`/`.jpg`). "
+    "PowerPoint decks are converted with LibreOffice, Keynote, or PowerPoint "
+    "when available; otherwise export the deck to PDF before uploading. "
+    "Add and remove files in the **Course materials** tab."
 )
 _QUIZ_SESSIONS: dict[str, dict] = {}
 
 
 def _available_documents(index_path: str | None = None) -> list[str]:
     """Return indexed document IDs without requiring a live model service."""
-    path = index_path or os.path.join(INDEX_DIR, "index.json")
-    if not os.path.isfile(path):
-        return []
-    try:
-        with open(path, encoding="utf-8") as handle:
-            data = json.load(handle)
-    except (OSError, json.JSONDecodeError):
-        return []
-    return sorted({chunk.get("doc_id") for chunk in data.get("chunks", [])
-                   if chunk.get("doc_id")})
+    return [d["doc_id"] for d in documents.list_documents()] if os.path.isfile(
+        os.path.join(INDEX_DIR, "index.json")) else []
 
 
 def _format_sources(sources: list[dict]) -> str:
@@ -156,6 +151,41 @@ def score_quiz_ui(quiz_id: str | None, answers_json: str,
     return _format_score(result, reveal), status
 
 
+# ------------------------------------------------- document management (1a)
+
+def _docs_table() -> list[list]:
+    return [[d["doc_id"], d.get("file") or "", d["pages"], d["chunks"],
+             d["images"], "yes" if d.get("present") else "missing"]
+            for d in documents.list_documents()]
+
+
+def add_documents_ui(files: list | None) -> tuple[str, list[list], list[str], list[str]]:
+    """Upload handler: add each file (deduped), then return (status, table,
+    ask-doc choices, quiz-doc choices)."""
+    if not files:
+        return "No file selected.", _docs_table(), _available_documents(), _available_documents()
+    lines = []
+    rebuild_once = True
+    for item in files:
+        path = item if isinstance(item, str) else (item.get("name") or "").replace("/tmp/gradio/", "")
+        orig_name = item.get("orig_name", os.path.basename(path)) if isinstance(item, dict) else os.path.basename(path)
+        ok, message, doc_id = documents.add_document(path, orig_name=orig_name,
+                                                     rebuild=rebuild_once and len(files) == 1)
+        rebuild_once = False
+        lines.append(("✅ " if ok else "⚠️ ") + message)
+    choices = _available_documents()
+    return "\n".join(lines), _docs_table(), choices, choices
+
+
+def remove_document_ui(doc_id: str | None) -> tuple[str, list[list], list[str], list[str], str]:
+    """Remove handler: delete doc + index entries, then refresh dropdowns."""
+    if not doc_id:
+        return "Select a document to remove.", _docs_table(), _available_documents(), _available_documents(), ""
+    ok, message = documents.remove_document(doc_id)
+    choices = _available_documents()
+    return (("✅ " if ok else "⚠️ ") + message, _docs_table(), choices, choices, "")
+
+
 def create_app() -> gr.Blocks:
     """Build and return the course-assistant interface."""
     with gr.Blocks(title=TITLE) as app:
@@ -172,7 +202,7 @@ def create_app() -> gr.Blocks:
                 placeholder="Ask a question about the course materials...",
                 lines=3,
             )
-            document = gr.Dropdown(
+            ask_document = gr.Dropdown(
                 choices=_available_documents(),
                 label="Document",
                 info="Leave blank to search all indexed documents.",
@@ -187,13 +217,15 @@ def create_app() -> gr.Blocks:
             )
             ask_button.click(
                 fn=answer_question,
-                inputs=[question, document],
+                inputs=[question, ask_document],
                 outputs=[answer, ask_status, evidence],
             )
 
         with gr.Tab("Practice quiz"):
+            quiz_doc_choices = _available_documents()
             quiz_document = gr.Dropdown(
-                choices=_available_documents(),
+                choices=quiz_doc_choices,
+                value=quiz_doc_choices[0] if quiz_doc_choices else None,
                 label="Document",
             )
             topic = gr.Textbox(
@@ -232,9 +264,32 @@ def create_app() -> gr.Blocks:
                 outputs=[score_output, score_status],
             )
 
+        with gr.Tab("Course materials"):
+            upload = gr.File(label="Add course materials (PDF / PPTX / DOCX / text)",
+                             file_count="multiple", file_types=[".pdf", ".pptx",
+                             ".docx", ".txt", ".md", ".png", ".jpg", ".jpeg"])
+            add_button = gr.Button("Add files", variant="primary")
+            add_status = gr.Markdown()
+            docs_table = gr.Dataframe(
+                headers=["doc_id", "source file", "pages", "chunks", "images", "in folder"],
+                value=_docs_table(), label="Indexed documents",
+            )
+            gr.Markdown("Removing a document deletes its file, chunks, page "
+                        "images, and index entries, then rebuilds search - "
+                        "later answers will not use it.")
+            remove_doc = gr.Dropdown(choices=_available_documents(), label="Remove document")
+            remove_button = gr.Button("Remove selected document", variant="stop")
+            remove_status = gr.Markdown()
+            add_button.click(fn=add_documents_ui, inputs=[upload],
+                             outputs=[add_status, docs_table,
+                                      ask_document, quiz_document])
+            remove_button.click(fn=remove_document_ui, inputs=[remove_doc],
+                                outputs=[remove_status, docs_table,
+                                         ask_document, quiz_document, remove_doc])
+
         gr.Markdown(
-            "**Status:** Grounded question answering is connected. Quiz "
-            "generation is connected; scoring will be connected next."
+            "**Status:** grounded Q&A, quiz generation/scoring, and in-app "
+            "document management are connected."
         )
 
     return app
