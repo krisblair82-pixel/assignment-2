@@ -57,10 +57,13 @@ def build_messages(text_chunks: list[dict], pages: list[dict], question: str) ->
         content.append({"type": "text", "text": f"{label}\n{c['text']}"})
     if pages:
         content.append({"type": "text",
-                        "text": "The following original page/slide image(s) are "
-                                "also evidence; cite them in sources with their "
-                                "doc_id/page when you use them."})
+                        "text": "The following original page/slide images are "
+                                "evidence. Cite their doc_id and page/slide "
+                                "when you use them."})
         for p in pages[:2]:
+            content.append({"type": "text",
+                            "text": (f"[IMAGE: doc={p['doc_id']}, page={p.get('page')}, "
+                                     f"slide={p.get('slide')}]")})
             content.append({"type": "image_url",
                             "image_url": {"url": _data_uri(p["image_path"])}})
     content.append({"type": "text", "text": f"Question: {question}"})
@@ -104,21 +107,23 @@ def _resolve_source(src: dict, chunks: list[dict]) -> dict | None:
     """Resolve a model-cited source to a real indexed chunk; returns the chunk
     or None. The excerpt is taken from the index so it cannot be fabricated."""
     doc_id = src.get("doc_id")
-    if not doc_id:
+    if not isinstance(doc_id, str) or not doc_id:
+        return None
+    if src.get("excerpt") is not None and not isinstance(src["excerpt"], str):
         return None
     cands = [c for c in chunks if c.get("doc_id") == doc_id]
+    if (src.get("page") is None and src.get("slide") is None
+            and not src.get("section")):
+        excerpt = (src.get("excerpt") or "").strip()
+        if not excerpt:
+            return None
+        cands = [c for c in cands if excerpt in c["text"]]
     if src.get("page") is not None:
-        exact = [c for c in cands if c.get("page") == src.get("page")]
-        if exact:
-            cands = exact
+        cands = [c for c in cands if c.get("page") == src["page"]]
     if src.get("slide") is not None:
-        exact = [c for c in cands if c.get("slide") == src.get("slide")]
-        if exact:
-            cands = exact
+        cands = [c for c in cands if c.get("slide") == src["slide"]]
     if src.get("section"):
-        exact = [c for c in cands if c.get("section") == src.get("section")]
-        if exact:
-            cands = exact
+        cands = [c for c in cands if c.get("section") == src["section"]]
     if len(cands) > 1:
         # several chunks share the location: use the model's excerpt (tokens)
         # to pick the most-likely one - disambiguation only, never content trust
@@ -133,9 +138,11 @@ def _resolve_source(src: dict, chunks: list[dict]) -> dict | None:
     return cands[0] if cands else None
 
 
-def ground(data: dict | None, chunks: list[dict]) -> tuple[dict | None, list[str]]:
+def ground(data: dict | None, chunks: list[dict],
+           images: list[dict] | None = None) -> tuple[dict | None, list[str]]:
     """Schema validation + grounding. Returns (clean_result, issues)."""
     issues = []
+    images = images or []
     if not isinstance(data, dict):
         return None, ["model output was not a JSON object"]
     answer = data.get("answer")
@@ -144,18 +151,38 @@ def ground(data: dict | None, chunks: list[dict]) -> tuple[dict | None, list[str
         issues.append("answer missing or not a string")
     if not isinstance(sources, list):
         issues.append("sources missing or not a list")
+    if issues:
+        return None, issues
+    if answer.strip().upper() == "NOT_COVERED":
+        return {"answer": "NOT_COVERED", "sources": []}, issues
     kept = []
+    seen_sources = set()
     for s in (sources if isinstance(sources, list) else []):
         if not isinstance(s, dict):
             issues.append("source entry is not an object")
             continue
         chunk = _resolve_source(s, chunks)
-        if chunk is None:
-            issues.append(f"source not found in index: {s!r}")
-            continue
-        kept.append({"doc_id": chunk["doc_id"], "page": chunk.get("page"),
-                     "slide": chunk.get("slide"), "section": chunk.get("section"),
-                     "excerpt": chunk["text"][:300]})
+        if chunk is not None:
+            citation = {"doc_id": chunk["doc_id"], "page": chunk.get("page"),
+                        "slide": chunk.get("slide"), "section": chunk.get("section"),
+                        "excerpt": chunk["text"][:300]}
+        else:
+            image = next((p for p in images
+                          if s.get("doc_id") == p.get("doc_id")
+                          and (s.get("page") is not None or s.get("slide") is not None)
+                          and s.get("page") == p.get("page")
+                          and s.get("slide") == p.get("slide")), None)
+            if image is None:
+                issues.append(f"source not found in index: {s!r}")
+                continue
+            citation = {"doc_id": image["doc_id"], "page": image.get("page"),
+                        "slide": image.get("slide"), "section": None,
+                        "excerpt": "", "image_path": image["image_path"]}
+        key = (citation["doc_id"], citation["page"], citation["slide"],
+               citation["section"], citation["excerpt"])
+        if key not in seen_sources:
+            kept.append(citation)
+            seen_sources.add(key)
     norm = (answer or "").strip().upper()
     covered = norm != "NOT_COVERED" and "NOT COVERED" not in norm
     return {"answer": answer, "sources": kept}, issues
@@ -171,25 +198,42 @@ def ask(question: str, doc_filter: str | None = None,
     if not text_chunks and not pages:
         return {"question": question, "covered": False, "answer":
                 "NOT_COVERED (no evidence retrieved - is the index built?)",
-                "sources": [], "legs": ev["legs"], "validation": {
+                "sources": [], "legs": ev["legs"], "pages_used": 0,
+                "validation": {
                     "schema_issues": [], "dropped_sources": [],
                     "note": "no evidence to answer from"}}
 
-    messages = build_messages(text_chunks, pages, question)
+    attached_pages = pages[:2]
+    messages = build_messages(text_chunks, attached_pages, question)
     chat = ChatClient()
     raw = chat.complete(messages, max_tokens=MAX_TOKENS)
-    data = _extract_json(raw)
-    result, issues = ground(data, _load_index(index_path).get("chunks", []))
+    data = ({"answer": "NOT_COVERED", "sources": []}
+            if raw.strip().upper() == "NOT_COVERED" else _extract_json(raw))
+    result, issues = ground(data, _load_index(index_path).get("chunks", []),
+                            images=attached_pages)
     if result is None:
         result = {"answer": "NOT_COVERED (could not parse a structured answer)",
                   "sources": []}
         covered = False
     else:
         covered = result["answer"].strip().upper() != "NOT_COVERED"
+        if covered and not result["sources"]:
+            issues.append("answer had no verified sources")
+            result = {"answer": "NOT_COVERED (answer had no verified sources)",
+                      "sources": []}
+            covered = False
+
+    for source in result["sources"]:
+        for page in attached_pages:
+            if (source["doc_id"] == page["doc_id"]
+                    and source.get("page") == page.get("page")
+                    and source.get("slide") == page.get("slide")):
+                source["image_path"] = page["image_path"]
+                break
 
     return {"question": question, "doc_filter": doc_filter, "covered": covered,
             "answer": result["answer"], "sources": result["sources"],
-            "legs": ev["legs"], "pages_used": len(pages),
+            "legs": ev["legs"], "pages_used": len(attached_pages),
             "validation": {"schema_issues": issues, "dropped_sources":
                            [i for i in issues if "not found in index" in i]},
             "raw_model_output": raw[:400]}
@@ -210,6 +254,8 @@ def main():
     for s in out["sources"]:
         loc = f"doc={s['doc_id']} page={s['page']} slide={s['slide']} sec={s['section']}"
         print(f"  source [{loc}] :: {s['excerpt'][:110]}")
+        if s.get("image_path"):
+            print(f"    original slide image: {s['image_path']}")
     if out["validation"]["schema_issues"]:
         print(f"\nvalidation notes: {out['validation']['schema_issues'][:5]}")
     if args.save:

@@ -169,9 +169,12 @@ def retrieve(query: str, doc_filter: str | None = None, k: int = 8,
     bm25_hits: list[str] = []
     try:
         bm25 = bm25s.BM25.load(BM25_DIR, load_corpus=False)
-        scores, results = bm25.retrieve(bm25s.tokenize([query], stopwords="en"), k=k)
+        results, scores = bm25.retrieve(bm25s.tokenize([query], stopwords="en"),
+                                       k=len(chunks) if doc_filter else k)
         idxs = results[0].tolist()
-        bm25_hits = [f"t{i}" for i in idxs if i < len(chunks)]
+        bm25_hits = [f"t{i}" for i in idxs if isinstance(i, int)
+                     and 0 <= i < len(chunks)
+                     and (not doc_filter or chunks[i].get("doc_id") == doc_filter)][:k]
         legs["bm25"] = len(bm25_hits)
     except Exception as e:  # noqa: BLE001
         print(f"[warn] bm25 leg failed: {type(e).__name__}: {e}")
@@ -214,8 +217,9 @@ def retrieve(query: str, doc_filter: str | None = None, k: int = 8,
             if docs:
                 rr = Reranker().rerank(query, docs)
                 ordered = [top_text_ids[r["index"]] for r in rr[:k]]
-                reranked = [cid for cid in ordered if cid in id_to_text]
-                legs["rerank"] = len(reranked)
+                if ordered:
+                    reranked = [cid for cid in ordered if cid in id_to_text]
+                    legs["rerank"] = len(reranked)
         except Exception as e:  # noqa: BLE001
             print(f"[warn] rerank leg failed: {type(e).__name__}: {e}")
 
