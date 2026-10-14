@@ -1,0 +1,60 @@
+{
+  "generated_at": "2026-10-14 11:35:35",
+  "document": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+  "cases": [
+    {
+      "id": "q01_open_weights",
+      "question": "What are two characteristics of open-weight LLMs?",
+      "answer": "Open-weight LLMs are free to download, can be run locally or via cloud application programming interfaces (APIs), and are reproducible and private (if local).",
+      "covered": true,
+      "sources": [
+        {
+          "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+          "page": null,
+          "slide": 4,
+          "section": null,
+          "excerpt": "Open- vs. Closed-Weight LLMs\nOpen-Weights\nFree to download\nRun locally or via cloud application programming interfaces (APIs)*\nReproducible and private (if local)\nClosed-Weights\nHigher performing frontier models\nEasier to use/deploy via interfaces and/or APIs\nVariable costs/credit allowances\n*Open a",
+          "image_path": "C:\\Users\\krisb\\OneDrive\\Desktop\\MBAX6418\\renders\\MBAX 6418 - Week 2 - LLM Fundamentals v2_p004.png"
+        }
+      ],
+      "validation": {
+        "schema_issues": [],
+        "dropped_sources": []
+      },
+      "pages_used": 2
+    },
+    {
+      "id": "q11_open_closed_visual",
+      "question": "What two categories are contrasted on slide 4's open/closed-weights comparison?",
+      "answer": "The two categories contrasted on slide 4 are Open-Weights and Closed-Weights.",
+      "covered": true,
+      "sources": [
+        {
+          "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+          "page": null,
+          "slide": 4,
+          "section": null,
+          "excerpt": "Open- vs. Closed-Weight LLMs\nOpen-Weights\nFree to download\nRun locally or via cloud application programming interfaces (APIs)*\nReproducible and private (if local)\nClosed-Weights\nHigher performing frontier models\nEasier to use/deploy via interfaces and/or APIs\nVariable costs/credit allowances\n*Open a",
+          "image_path": "C:\\Users\\krisb\\OneDrive\\Desktop\\MBAX6418\\renders\\MBAX 6418 - Week 2 - LLM Fundamentals v2_p004.png"
+        }
+      ],
+      "validation": {
+        "schema_issues": [],
+        "dropped_sources": []
+      },
+      "pages_used": 2
+    },
+    {
+      "id": "q12_not_covered",
+      "question": "What was the instructor's favorite programming language in high school?",
+      "answer": "NOT_COVERED",
+      "covered": false,
+      "sources": [],
+      "validation": {
+        "schema_issues": [],
+        "dropped_sources": []
+      },
+      "pages_used": 2
+    }
+  ]
+}
