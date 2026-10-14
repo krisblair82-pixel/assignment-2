@@ -1,0 +1,58 @@
+{
+ "quiz_id": "20261014_150159",
+ "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+ "topic": null,
+ "n": 5,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "Which of the following is NOT listed as a topic on the 'Topics' slide?",
+   "options": [
+    "A. Large Language Models (LLMs) for Coding",
+    "B. Vibe Coding Overview",
+    "C. Vibe Coding Interfaces",
+    "D. Advanced Neural Network Architecture"
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "According to the slide on Open- vs. Closed-Weight LLMs, which of the following is a characteristic of Open-Weights models?",
+   "options": [
+    "A. Higher performing frontier models",
+    "B. Variable costs/credit allowances",
+    "C. Reproducible and private (if local)",
+    "D. Easier to use/deploy via interfaces"
+   ]
+  },
+  {
+   "id": "q3",
+   "question": "Which of the following is listed as a characteristic of Closed-Weights models?",
+   "options": [
+    "A. Free to download",
+    "B. Run locally",
+    "C. Higher performing frontier models",
+    "D. Reproducible and private"
+   ]
+  },
+  {
+   "id": "q4",
+   "question": "Which of the following models is identified as a Closed-Weights model in the provided slide?",
+   "options": [
+    "A. Qwen",
+    "B. deepseek",
+    "C. Claude",
+    "D. ModelScope"
+   ]
+  },
+  {
+   "id": "q5",
+   "question": "According to the footnote on the slide, what do open and closed APIs allow users to do?",
+   "options": [
+    "A. Download models for free",
+    "B. Send requests to an LLM service and receive model responses programmatically",
+    "C. Run models locally without internet",
+    "D. Access higher performing frontier models"
+   ]
+  }
+ ]
+}

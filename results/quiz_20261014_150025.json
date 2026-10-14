@@ -1,0 +1,58 @@
+{
+ "quiz_id": "20261014_150025",
+ "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pdf",
+ "topic": null,
+ "n": 5,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "Which of the following is NOT listed as a specific topic for this session on the 'Topics' slide?",
+   "options": [
+    "A. Large Language Models (LLMs) for Coding",
+    "B. Vibe Coding Overview",
+    "C. Vibe Coding Interfaces",
+    "D. Advanced Neural Network Architecture"
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "According to the 'Open- vs. Closed-Weight LLMs' slide, which of the following is a characteristic of Open-Weights models?",
+   "options": [
+    "A. They are higher performing frontier models",
+    "B. They are free to download",
+    "C. They have variable costs/credit allowances",
+    "D. They are easier to use/deploy via interfaces"
+   ]
+  },
+  {
+   "id": "q3",
+   "question": "Which of the following is listed as a characteristic of Closed-Weights models?",
+   "options": [
+    "A. Reproducible and private (if local)",
+    "B. Free to download",
+    "C. Higher performing frontier models",
+    "D. Run locally"
+   ]
+  },
+  {
+   "id": "q4",
+   "question": "Based on the logos and categories in the 'Open- vs. Closed-Weight LLMs' slide, which of the following is identified as a Closed-Weights model?",
+   "options": [
+    "A. Qwen",
+    "B. deepseek",
+    "C. Claude",
+    "D. ModelScope"
+   ]
+  },
+  {
+   "id": "q5",
+   "question": "According to the footnote on the 'Open- vs. Closed-Weight LLMs' slide, what is the primary function of APIs?",
+   "options": [
+    "A. To allow users to download models for free",
+    "B. To let you send requests to an LLM service and receive model responses programmatically",
+    "C. To ensure models are reproducible and private",
+    "D. To provide variable costs/credit allowances"
+   ]
+  }
+ ]
+}

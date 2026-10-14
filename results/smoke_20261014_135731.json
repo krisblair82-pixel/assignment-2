@@ -1,0 +1,31 @@
+{
+ "generated_at": "2026-10-14 13:57:26",
+ "checks": [
+  {
+   "name": "text embed",
+   "ok": true,
+   "detail": "dim=2048"
+  },
+  {
+   "name": "visual embed (text)",
+   "ok": true,
+   "detail": "dim=2048"
+  },
+  {
+   "name": "rerank top-1 relevant",
+   "ok": true,
+   "detail": "top=quarterly sales grew 12% in Q3, driven by the new product li"
+  },
+  {
+   "name": "chat content",
+   "ok": true,
+   "detail": "'OK'"
+  },
+  {
+   "name": "parse synthetic page",
+   "ok": true,
+   "detail": "187 chars"
+  }
+ ],
+ "parsed_sample": "[{\"bbox\": [104, 106, 485, 136], \"category\": \"Title\", \"text\": \"MBAX 6418 Sample Chart Page\"}, {\"bbox\": [104, 171, 358, 193], \"category\": \"Text\", \"text\": \"Quarterly sales grew 12% in Q3.\"}]"
+}
