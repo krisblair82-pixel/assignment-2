@@ -1,0 +1,170 @@
+"""Offline regression tests for real-slide answer evidence and refusals."""
+import json
+from pathlib import Path
+
+import answers
+
+
+class FakeChat:
+    def __init__(self, reply):
+        self.reply = reply
+
+    def complete(self, messages, max_tokens=None):
+        return self.reply
+
+
+def setup_answer(monkeypatch, tmp_path, reply, cited_slide=34):
+    doc = "week-2.pptx"
+    chunk = {"doc_id": doc, "page": None, "slide": cited_slide,
+             "section": None, "text": "Security? Never heard of it..."}
+    images = []
+    for slide in (34, 30, 12):
+        path = tmp_path / f"slide-{slide}.png"
+        path.write_bytes(b"image data")
+        images.append({"doc_id": doc, "page": None, "slide": slide,
+                       "image_path": str(path)})
+    evidence = {"text_chunks": [chunk], "pages": images,
+                "legs": {"bm25": 1, "text_dense": 1, "visual": 3, "rerank": 1}}
+    monkeypatch.setattr(answers, "ensure_configured", lambda: None)
+    monkeypatch.setattr(answers, "retrieve", lambda *args, **kwargs: evidence)
+    monkeypatch.setattr(answers, "_load_index", lambda *args: {"chunks": [chunk]})
+    monkeypatch.setattr(answers, "ChatClient", lambda: FakeChat(reply))
+    return images
+
+
+def test_visual_citation_includes_original_attached_slide(monkeypatch, tmp_path):
+    reply = json.dumps({"answer": "The creator came under attack.",
+                        "sources": [{"doc_id": "week-2.pptx", "slide": 34,
+                                     "page": None, "section": None,
+                                     "excerpt": "Security?"}]})
+    images = setup_answer(monkeypatch, tmp_path, reply)
+    result = answers.ask("What do the screenshots show?", index_path="synthetic.json")
+    assert result["sources"][0]["image_path"] == images[0]["image_path"]
+    assert Path(result["sources"][0]["image_path"]).is_file()
+
+
+def test_duplicate_citations_of_same_slide_are_collapsed(monkeypatch, tmp_path):
+    citation = {"doc_id": "week-2.pptx", "slide": 34, "page": None,
+                "excerpt": "Security?"}
+    setup_answer(monkeypatch, tmp_path, json.dumps({
+        "answer": "The slide shows a security incident.",
+        "sources": [citation, citation, citation]}))
+    result = answers.ask("What happened?", index_path="synthetic.json")
+    assert len(result["sources"]) == 1
+    assert result["sources"][0]["slide"] == 34
+
+
+def test_images_used_counts_only_images_sent_to_model(monkeypatch, tmp_path):
+    setup_answer(monkeypatch, tmp_path, 'NOT_COVERED')
+    result = answers.ask("Unrelated?", index_path="synthetic.json")
+    assert result["pages_used"] == 2
+
+
+def test_no_evidence_reports_zero_images(monkeypatch):
+    monkeypatch.setattr(answers, "ensure_configured", lambda: None)
+    monkeypatch.setattr(answers, "retrieve", lambda *args, **kwargs: {
+        "text_chunks": [], "pages": [], "legs": {}})
+    result = answers.ask("Absent?", index_path="synthetic.json")
+    assert result["covered"] is False
+    assert result["pages_used"] == 0
+
+
+def test_plain_not_covered_is_a_clean_refusal(monkeypatch, tmp_path):
+    setup_answer(monkeypatch, tmp_path, "\n\nNOT_COVERED")
+    result = answers.ask("When is Assignment 3 due?", index_path="synthetic.json")
+    assert result["answer"] == "NOT_COVERED"
+    assert result["covered"] is False
+    assert result["sources"] == []
+    assert result["validation"]["schema_issues"] == []
+
+
+def test_missing_answer_fails_closed_instead_of_crashing(monkeypatch, tmp_path):
+    setup_answer(monkeypatch, tmp_path, '{"sources": []}')
+    result = answers.ask("What does the slide say?", index_path="synthetic.json")
+    assert result["covered"] is False
+    assert result["answer"].startswith("NOT_COVERED")
+    assert result["validation"]["schema_issues"]
+
+
+def test_claim_without_valid_citation_fails_closed(monkeypatch, tmp_path):
+    reply = json.dumps({"answer": "The deadline is Friday.",
+                        "sources": [{"doc_id": "week-2.pptx", "slide": 99,
+                                     "excerpt": "Friday"}]})
+    setup_answer(monkeypatch, tmp_path, reply)
+    result = answers.ask("What is the deadline?", index_path="synthetic.json")
+    assert result["covered"] is False
+    assert result["sources"] == []
+    assert result["validation"]["dropped_sources"]
+
+
+def test_doc_only_citation_without_matching_excerpt_is_rejected(monkeypatch, tmp_path):
+    reply = json.dumps({"answer": "A made-up claim.",
+                        "sources": [{"doc_id": "week-2.pptx", "section": "",
+                                     "excerpt": "something never stated"}]})
+    setup_answer(monkeypatch, tmp_path, reply)
+    result = answers.ask("What does it say?", index_path="synthetic.json")
+    assert result["covered"] is False
+    assert result["sources"] == []
+
+
+def test_numeric_excerpt_is_rejected_without_crashing(monkeypatch, tmp_path):
+    reply = json.dumps({"answer": "A made-up claim.",
+                        "sources": [{"doc_id": "week-2.pptx", "section": "",
+                                     "excerpt": 123}]})
+    setup_answer(monkeypatch, tmp_path, reply)
+    result = answers.ask("What does it say?", index_path="synthetic.json")
+    assert result["covered"] is False
+    assert result["sources"] == []
+
+
+def test_not_covered_discards_model_supplied_sources(monkeypatch, tmp_path):
+    reply = json.dumps({"answer": "NOT_COVERED",
+                        "sources": [{"doc_id": "week-2.pptx", "slide": 34,
+                                     "excerpt": "Security?"}]})
+    setup_answer(monkeypatch, tmp_path, reply)
+    result = answers.ask("Unknown?", index_path="synthetic.json")
+    assert result["covered"] is False
+    assert result["sources"] == []
+
+
+def test_image_prompt_labels_each_slide(monkeypatch, tmp_path):
+    images = setup_answer(monkeypatch, tmp_path, "NOT_COVERED")
+    messages = answers.build_messages([], images, "What does this show?")
+    parts = messages[1]["content"]
+    assert len([p for p in parts if p["type"] == "image_url"]) == 2
+    assert any(p["type"] == "text" and "slide=34" in p["text"] for p in parts)
+    assert any(p["type"] == "text" and "slide=30" in p["text"] for p in parts)
+    assert not any(p["type"] == "text" and "slide=12" in p["text"] for p in parts)
+
+
+def test_unattached_slide_is_not_mislabeled_as_image_evidence(monkeypatch, tmp_path):
+    reply = json.dumps({"answer": "The source mentions security.",
+                        "sources": [{"doc_id": "week-2.pptx", "slide": 12,
+                                     "page": None, "excerpt": "Security?"}]})
+    setup_answer(monkeypatch, tmp_path, reply, cited_slide=12)
+    result = answers.ask("What does this show?", index_path="synthetic.json")
+    assert "image_path" not in result["sources"][0]
+
+
+def test_image_only_slide_uses_its_image_not_another_slide_text(monkeypatch, tmp_path):
+    reply = json.dumps({"answer": "The image depicts a warning.",
+                        "sources": [{"doc_id": "week-2.pptx", "slide": 34,
+                                     "page": None, "excerpt": "warning"}]})
+    images = setup_answer(monkeypatch, tmp_path, reply, cited_slide=12)
+    result = answers.ask("What is shown in the screenshot?", index_path="synthetic.json")
+    assert len(result["sources"]) == 1
+    assert result["sources"][0]["slide"] == 34
+    assert result["sources"][0]["image_path"] == images[0]["image_path"]
+    assert "Security? Never heard" not in result["sources"][0]["excerpt"]
+
+
+def test_cli_shows_image_evidence_path(monkeypatch, capsys, tmp_path):
+    path = str(tmp_path / "slide-34.png")
+    monkeypatch.setattr(answers, "ask", lambda *args, **kwargs: {
+        "covered": True, "legs": {}, "pages_used": 1, "answer": "Supported",
+        "sources": [{"doc_id": "week-2.pptx", "page": None, "slide": 34,
+                     "section": None, "excerpt": "Title", "image_path": path}],
+        "validation": {"schema_issues": []}})
+    monkeypatch.setattr("sys.argv", ["answers.py", "What happened?"])
+    answers.main()
+    assert path in capsys.readouterr().out

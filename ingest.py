@@ -70,7 +70,7 @@ def find_soffice() -> str | None:
 
 
 def render_pptx_slides(pptx_path: str, out_dir: str) -> tuple[list[dict], str | None]:
-    """Slide text via python-pptx; slide images via LibreOffice -> PDF -> render.
+    """Slide text via python-pptx; images via LibreOffice or Windows PowerPoint.
     Returns (slides, warning) where slides have {slide, text, image_path?}."""
     from pptx import Presentation
 
@@ -87,12 +87,37 @@ def render_pptx_slides(pptx_path: str, out_dir: str) -> tuple[list[dict], str | 
         slides.append({"slide": i, "text": "\n".join(text_parts), "image_path": None})
 
     soffice = find_soffice()
-    warning = None
-    if soffice is None:
-        warning = "LibreOffice not found - slide images will be skipped (text indexed only)."
-        return slides, warning
-
     base = os.path.splitext(os.path.basename(pptx_path))[0]
+    if soffice is None and os.name == "nt":
+        try:
+            import win32com.client
+            app = win32com.client.DispatchEx("PowerPoint.Application")
+            deck = None
+            try:
+                deck = app.Presentations.Open(os.path.abspath(pptx_path),
+                                              ReadOnly=True, WithWindow=False)
+                if deck.Slides.Count != len(slides):
+                    raise RuntimeError("PowerPoint rendered a different slide count")
+                for i, slide in enumerate(deck.Slides, start=1):
+                    img = os.path.abspath(os.path.join(out_dir, f"{base}_p{i:03d}.png"))
+                    slide.Export(img, "PNG", 1280, 720)
+                    if not os.path.isfile(img) or os.path.getsize(img) == 0:
+                        raise RuntimeError(f"PowerPoint did not render slide {i}")
+                    slides[i-1]["image_path"] = img
+            finally:
+                if deck is not None:
+                    deck.Close()
+                app.Quit()
+            return slides, None
+        except ImportError:
+            return slides, "LibreOffice absent and pywin32 unavailable - text only."
+        except Exception:  # COM may be installed even when PowerPoint is not usable
+            for slide in slides:
+                slide["image_path"] = None
+            return slides, "PowerPoint rendering failed - text only."
+    if soffice is None:
+        return slides, "LibreOffice/PowerPoint unavailable - text only."
+
     pdf_path = os.path.join(out_dir, f"{base}.pdf")
     import subprocess
     subprocess.run([soffice, "--headless", "--convert-to", "pdf",
@@ -100,9 +125,11 @@ def render_pptx_slides(pptx_path: str, out_dir: str) -> tuple[list[dict], str | 
                    capture_output=True)
     if os.path.exists(pdf_path):
         page_imgs = render_pdf_pages(pdf_path, out_dir)
+        if len(page_imgs) != len(slides):
+            raise RuntimeError("PDF rendering produced a different slide count")
         for slide, page in zip(slides, page_imgs):
             slide["image_path"] = page["image_path"]
-    return slides, warning
+    return slides, None
 
 
 def extract_docx_sections(docx_path: str) -> list[dict]:

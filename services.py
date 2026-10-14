@@ -162,12 +162,22 @@ class VisualEmbedder(_ModelsMixin):
         model = self._resolve_model_id()
         images = images or []
         if images:
-            content = [{"type": "image", "image": _image_data_uri(p)} for p in images]
-            for t in (texts or []):
-                content.append({"type": "text", "text": t})
-            payload = {"model": model,
-                       "input": [{"role": "user", "content": content}],
-                       "encoding_format": "float"}
+            vectors = []
+            for i, image in enumerate(images):
+                content = [{"type": "image_url", "image_url": {"url": _image_data_uri(image)}}]
+                if texts and i < len(texts):
+                    content.append({"type": "text", "text": texts[i]})
+                payload = {"model": model,
+                           "input": [{"role": "user", "content": content}],
+                           "encoding_format": "float"}
+                resp = _post_json(f"{self._base}/embeddings", payload)
+                data = resp["data"]
+                if isinstance(data, dict):
+                    data = [data]
+                if len(data) != 1:
+                    raise ServiceError("visual embedding response did not contain one vector per slide")
+                vectors.append(data[0]["embedding"])
+            return vectors
         else:
             inputs = texts or []
             if not inputs:
