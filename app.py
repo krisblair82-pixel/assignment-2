@@ -12,6 +12,11 @@ from quiz import generate_quiz as generate_quiz_backend, score_quiz as score_qui
 
 
 TITLE = "MBAX 6418 Course Assistant"
+ACCEPTED_FORMATS = (
+    "**Accepted course-material formats:** PDF, PowerPoint (`.pptx`, `.ppt`), "
+    "Word (`.docx`), and plain text (`.txt`). Add files to the local "
+    "`materials/` folder and run ingestion before using the assistant."
+)
 _QUIZ_SESSIONS: dict[str, dict] = {}
 
 
@@ -159,6 +164,7 @@ def create_app() -> gr.Blocks:
             "Ask grounded questions or create a practice quiz from indexed "
             "course materials."
         )
+        gr.Markdown(ACCEPTED_FORMATS)
 
         with gr.Tab("Ask a question"):
             question = gr.Textbox(

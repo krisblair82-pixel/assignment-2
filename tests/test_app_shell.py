@@ -21,3 +21,15 @@ def test_app_shell_has_question_and_quiz_sections():
     assert "Document" in labels
     assert "Topic filter" in labels
     assert "Quiz questions" in labels
+
+
+def test_app_shell_explains_accepted_material_formats():
+    from app import ACCEPTED_FORMATS, create_app
+
+    rendered_values = [getattr(component, "value", "")
+                       for component in create_app().blocks.values()]
+
+    assert "PDF" in ACCEPTED_FORMATS
+    assert ".pptx" in ACCEPTED_FORMATS
+    assert ".docx" in ACCEPTED_FORMATS
+    assert ACCEPTED_FORMATS in rendered_values
