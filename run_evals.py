@@ -52,15 +52,19 @@ def _expected_hit(expected: list[dict], retrieved: list[dict]) -> bool:
     )
 
 
-def evaluate_case(case: dict, index_path: str) -> dict:
+def evaluate_case(case: dict, index_path: str,
+                  enabled_legs: set | None = None) -> dict:
     question = case["question"]
     doc_filter = case.get("doc_filter")
-    evidence = retrieve(question, doc_filter=doc_filter, k=8, index_path=index_path)
+    started = time.perf_counter()
+    evidence = retrieve(question, doc_filter=doc_filter, k=8, index_path=index_path,
+                        enabled_legs=enabled_legs)
     retrieved = evidence.get("text_chunks", []) + evidence.get("pages", [])
     expected_sources = case.get("expected_sources", [])
     retrieval_hit = _expected_hit(expected_sources, retrieved)
 
     result = ask(question, doc_filter=doc_filter, index_path=index_path)
+    elapsed_ms = round((time.perf_counter() - started) * 1000, 1)
     answer_text = (result.get("answer") or "").strip()
     normalized = answer_text.upper()
     expected_not_covered = case.get("expected_answer") == "NOT_COVERED"
@@ -74,6 +78,7 @@ def evaluate_case(case: dict, index_path: str) -> dict:
     return {
         "id": case["id"],
         "question": question,
+        "elapsed_ms": elapsed_ms,
         "retrieval": {
             "source_hit": retrieval_hit,
             "legs": evidence.get("legs", {}),
@@ -93,12 +98,20 @@ def evaluate_case(case: dict, index_path: str) -> dict:
 def run_evals(eval_path: str = DEFAULT_EVAL_PATH,
               index_path: str | None = None,
               output_dir: str = RESULTS_DIR,
-              limit: int | None = None) -> tuple[str, dict]:
+              limit: int | None = None,
+              mode: str = "hybrid") -> tuple[str, dict]:
+    """mode='hybrid' runs all legs; mode='keyword' is the issue-#5 baseline
+    (bm25 keyword search only, no dense/visual/rerank)."""
     data = load_eval_set(eval_path)
     index_path = index_path or os.path.join(INDEX_DIR, "index.json")
+    enabled_legs = None if mode == "hybrid" else {"bm25"}
     cases = data["questions"][:limit] if limit else data["questions"]
-    results = [evaluate_case(case, index_path) for case in cases]
+    started_all = time.perf_counter()
+    results = [evaluate_case(case, index_path, enabled_legs=enabled_legs)
+               for case in cases]
+    total_ms = round((time.perf_counter() - started_all) * 1000, 1)
     summary = {
+        "mode": mode,
         "cases": len(results),
         "retrieval_hits": sum(item["retrieval"]["source_hit"] for item in results),
         "grounded_answers": sum(item["answer"]["grounded"] for item in results),
@@ -109,6 +122,8 @@ def run_evals(eval_path: str = DEFAULT_EVAL_PATH,
             and item["answer"].get("grounded", False)
             for item in results
         ),
+        "total_time_ms": total_ms,
+        "avg_time_ms": round(total_ms / len(results), 1) if results else 0.0,
     }
     report = {
         "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -130,8 +145,11 @@ def main() -> None:
     parser.add_argument("--index", default=os.path.join(INDEX_DIR, "index.json"))
     parser.add_argument("--output-dir", default=RESULTS_DIR)
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--mode", choices=["hybrid", "keyword"], default="hybrid",
+                        help="hybrid = all legs; keyword = bm25-only baseline (issue #5)")
     args = parser.parse_args()
-    output_path, report = run_evals(args.eval_set, args.index, args.output_dir, args.limit)
+    output_path, report = run_evals(args.eval_set, args.index, args.output_dir,
+                                    args.limit, mode=args.mode)
     print(f"saved: {output_path}")
     print(json.dumps(report["summary"], sort_keys=True))
 

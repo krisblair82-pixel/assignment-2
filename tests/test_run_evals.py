@@ -72,7 +72,8 @@ def test_run_evals_writes_timestamped_artifact(monkeypatch, tmp_path):
         "schema_version": 1,
         "questions": [{"id": "q1", "question": "Q", "expected_sources": []}],
     })
-    monkeypatch.setattr(run_evals, "evaluate_case", lambda case, index_path: {
+    monkeypatch.setattr(run_evals, "evaluate_case",
+                        lambda case, index_path, enabled_legs=None: {
         "id": case["id"],
         "retrieval": {"source_hit": True},
         "answer": {"grounded": True},
