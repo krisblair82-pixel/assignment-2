@@ -64,10 +64,10 @@
       "expected_sources": [{"slide": 42, "modality": "text", "terms": ["Tools", "Data", "APIs"]}]
     },
     {
-      "id": "q11_security_visual",
-      "question": "What visual change is presented on the security slide in the vibe-coding section?",
+      "id": "q11_open_closed_visual",
+      "question": "What two categories are contrasted on slide 4's open/closed-weights comparison?",
       "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
-      "expected_sources": [{"slide": 34, "modality": "visual", "terms": []}]
+      "expected_sources": [{"slide": 4, "modality": "visual", "terms": []}]
     },
     {
       "id": "q12_not_covered",
