@@ -122,11 +122,11 @@ def test_visual_citation_can_use_attached_image_without_matching_text(monkeypatc
     assert "Not indexed text" not in json.dumps(source)
 
 
-def test_unattached_later_slide_cannot_validate_screenshot_quote(monkeypatch, tmp_path):
+def test_selected_later_slide_attaches_before_validation(monkeypatch, tmp_path):
     chunks = [{**CHUNK, "slide": slide,
                "text": f"Slide {slide} title only"} for slide in (1, 2, 34)]
     pages = []
-    for slide in (1, 2, 34):
+    for slide in tuple(range(1, 9)) + (34,):
         image = tmp_path / f"slide{slide}.png"
         image.write_bytes(b"image bytes")
         pages.append({"doc_id": DOC, "slide": slide, "image_path": str(image)})
@@ -146,17 +146,18 @@ def test_unattached_later_slide_cannot_validate_screenshot_quote(monkeypatch, tm
                                                         "excerpt": "API keys exhausted"}}]})
 
     monkeypatch.setattr(quiz, "ChatClient", Client)
-    with pytest.raises(ValueError, match="valid quiz"):
-        quiz.generate_quiz(DOC, n=1, save=False)
-    assert not any(part.get("text", "").startswith("[IMAGE:")
-                   and "slide=34" in part["text"] for part in seen)
+    result = quiz.generate_quiz(DOC, n=1, save=False)
+    source = result["key"]["answers"]["q1"]["source"]
+    assert source["image_path"].endswith("slide34.png")
+    assert any(part.get("text", "").startswith("[IMAGE:")
+               and "slide=34" in part["text"] for part in seen)
 
 
-def test_unattached_later_slide_allows_exact_text_quote(monkeypatch, tmp_path):
+def test_selected_later_slide_uses_attached_image(monkeypatch, tmp_path):
     chunks = [{**CHUNK, "slide": slide,
                "text": f"Slide {slide} title only"} for slide in (1, 2, 34)]
     pages = []
-    for slide in (1, 2, 34):
+    for slide in tuple(range(1, 9)) + (34,):
         image = tmp_path / f"slide{slide}.png"
         image.write_bytes(b"image bytes")
         pages.append({"doc_id": DOC, "slide": slide, "image_path": str(image)})
@@ -177,7 +178,7 @@ def test_unattached_later_slide_allows_exact_text_quote(monkeypatch, tmp_path):
     result = quiz.generate_quiz(DOC, n=1, save=False)
     source = result["key"]["answers"]["q1"]["source"]
     assert source["slide"] == 34
-    assert "image_path" not in source
+    assert source["image_path"].endswith("slide34.png")
 
 
 def test_visual_citation_cannot_substitute_a_different_slide(monkeypatch, tmp_path):

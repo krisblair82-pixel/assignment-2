@@ -98,7 +98,7 @@ def generate_quiz(doc_id: str, topic: str | None = None, n: int = 5,
         content.append({"type": "text", "text": f"{label}\n{c['text']}"})
     attached_pages = []
     for page in pages:
-        if len(attached_pages) >= 2:
+        if len(attached_pages) >= 8:
             break
         if (page.get("doc_id") == doc_id and page.get("image_path")
                 and os.path.isfile(page["image_path"])
