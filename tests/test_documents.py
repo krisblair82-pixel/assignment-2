@@ -18,6 +18,7 @@ def _write_index(tmp_path, chunks, pages):
 
 def _setup(monkeypatch, tmp_path):
     """Point config paths at tmp dirs and stub network calls."""
+    monkeypatch.setattr(documents, "ensure_configured", lambda: None)
     mats = tmp_path / "materials"
     renders = tmp_path / "renders"
     results = tmp_path / "results"

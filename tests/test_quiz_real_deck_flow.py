@@ -11,6 +11,12 @@ CHUNK = {"doc_id": DOC, "page": None, "slide": 12, "section": None,
          "text": "Prompt caching reuses the KV cache across requests."}
 
 
+@pytest.fixture(autouse=True)
+def offline_configuration(monkeypatch):
+    """These tests replace model/index calls and never need a real API key."""
+    monkeypatch.setattr(quiz, "ensure_configured", lambda: None)
+
+
 def _model_reply():
     return json.dumps({"questions": [{"id": "q1", "question": "What can be reused?",
                                       "options": ["A. The KV cache", "B. Audio", "C. Video", "D. Nothing"],

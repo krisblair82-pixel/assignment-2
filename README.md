@@ -48,6 +48,12 @@ python -m venv .venv            # or: uv venv .venv
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
+If you use `uv` instead of `pip`, install into the environment with
+`UV_LINK_MODE=copy uv pip install --python .venv/Scripts/python.exe -r requirements.txt`
+on Windows when the repository is inside OneDrive or another cloud-synced
+folder. This avoids a Windows hardlink error; on macOS/Linux use the equivalent
+`.venv/bin/python` path.
+
 # 3. Configure the class API key (NEVER commit this file)
 cp config.example .env
 #    edit .env and set CLASS_API_KEY=<your real class key>
