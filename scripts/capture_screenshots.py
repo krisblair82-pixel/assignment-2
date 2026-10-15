@@ -100,7 +100,14 @@ def main():
         page.screenshot(path=OUT + "quiz_generated.png", full_page=False)
         print("saved", OUT + "quiz_generated.png")
 
-        page.locator('textarea[placeholder*="q1"]').fill('{"q1": 0, "q2": 1, "q3": 2}')
+        # Select the first option for the first three generated questions.
+        # Each visible Radio group exposes four native radio inputs.
+        radio_inputs = page.locator('input[type="radio"]:visible')
+        radio_count = radio_inputs.count()
+        if radio_count < 12:
+            raise RuntimeError(f"expected at least 12 visible quiz options, found {radio_count}")
+        for index in (0, 4, 8):
+            radio_inputs.nth(index).check(force=True)
         js_click(page, "Submit answers")
         time.sleep(8)
         page.check("text=Reveal solutions and explanations", force=True)

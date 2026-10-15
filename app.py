@@ -210,14 +210,17 @@ def add_documents_ui(files: list | None) -> tuple[str, list[list], dict, dict]:
         update = _dropdown_update(choices)
         return "No file selected.", _docs_table(), update, update
     lines = []
-    rebuild_once = True
+    added_any = False
     for item in files:
         path = item if isinstance(item, str) else (item.get("name") or "").replace("/tmp/gradio/", "")
         orig_name = item.get("orig_name", os.path.basename(path)) if isinstance(item, dict) else os.path.basename(path)
         ok, message, doc_id = documents.add_document(path, orig_name=orig_name,
-                                                     rebuild=rebuild_once and len(files) == 1)
-        rebuild_once = False
+                                                     rebuild=len(files) == 1)
+        added_any = added_any or ok
         lines.append(("✅ " if ok else "⚠️ ") + message)
+    if len(files) > 1 and added_any:
+        documents._rebuild_indexes()
+        lines.append("✅ Search index rebuilt after batch upload.")
     choices = _available_documents()
     update = _dropdown_update(choices)
     return "\n".join(lines), _docs_table(), update, update

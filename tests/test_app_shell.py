@@ -49,3 +49,30 @@ def test_document_handlers_update_dropdown_choices_not_values(monkeypatch):
     assert ask_update["choices"] == ["week2.pptx", "week3.pptx"]
     assert ask_update["value"] == "week2.pptx"
     assert quiz_update["choices"] == ask_update["choices"]
+
+
+def test_batch_document_upload_rebuilds_search_once(monkeypatch):
+    import app
+
+    rebuilds = []
+    added = []
+
+    def fake_add(path, orig_name=None, rebuild=True):
+        added.append((orig_name, rebuild))
+        return True, f"Added {orig_name}", orig_name
+
+    monkeypatch.setattr(app.documents, "add_document", fake_add)
+    monkeypatch.setattr(app.documents, "_rebuild_indexes",
+                        lambda: rebuilds.append(True))
+    monkeypatch.setattr(app, "_available_documents",
+                        lambda: ["one.txt", "two.txt"])
+    monkeypatch.setattr(app, "_docs_table", lambda: [])
+
+    status, _, _, _ = app.add_documents_ui([
+        {"name": "one.txt", "orig_name": "one.txt"},
+        {"name": "two.txt", "orig_name": "two.txt"},
+    ])
+
+    assert added == [("one.txt", False), ("two.txt", False)]
+    assert rebuilds == [True]
+    assert "batch upload" in status.lower()

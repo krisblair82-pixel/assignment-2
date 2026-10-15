@@ -45,3 +45,20 @@ def test_answer_question_rejects_blank_question_without_backend_call(monkeypatch
     assert answer == ""
     assert "enter a question" in status.lower()
     assert evidence == []
+
+
+def test_answer_question_hides_unavailable_service_details(monkeypatch):
+    import app
+
+    def unavailable(*args, **kwargs):
+        raise RuntimeError("9001 unavailable; secret=should-never-appear")
+
+    monkeypatch.setattr(app, "grounded_ask", unavailable)
+
+    answer, status, evidence = app.answer_question("What is attention?", "week2")
+
+    assert answer == ""
+    assert "unable to answer" in status.lower()
+    assert "9001" not in status
+    assert "secret" not in status.lower()
+    assert evidence == []
