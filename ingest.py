@@ -281,14 +281,16 @@ def slugify(name: str) -> str:
 
 # ---------------------------------------------------------------- pipeline
 
-def process_file(f: str, parser, dry_run: bool) -> tuple[list[dict], list[dict], dict]:
+def process_file(f: str, parser, dry_run: bool,
+                 materials_dir: str | None = None) -> tuple[list[dict], list[dict], dict]:
     """Process ONE course file -> (chunks, pages, inventory_entry).
 
     Extracted from ingest() so the app's document management (documents.py)
     can add a single uploaded file without re-processing the whole library.
     """
     ext = os.path.splitext(f)[1].lower()
-    doc_id = slugify(os.path.relpath(f, MATERIALS_DIR))
+    root = materials_dir or MATERIALS_DIR
+    doc_id = slugify(os.path.relpath(f, root))
     print(f"\n== {os.path.basename(f)}  ({ext})")
     entry = {"file": os.path.basename(f), "doc_id": doc_id, "format": ext,
              "pages": 0, "chunks": 0, "images": 0, "warning": None}
@@ -362,7 +364,7 @@ def ingest(materials_dir: str, dry_run: bool = False) -> dict:
 
     for f in files:
         try:
-            chunks, page_list, entry = process_file(f, parser, dry_run)
+            chunks, page_list, entry = process_file(f, parser, dry_run, materials_dir)
             all_chunks.extend(chunks)
             pages.extend(page_list)
             inventory["files"].append(entry)
