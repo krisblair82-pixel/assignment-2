@@ -99,7 +99,10 @@ def _keynote_convert_pptx_to_pdf(pptx_path: str, out_pdf: str) -> bool:
     if not os.path.exists("/Applications/Keynote.app"):
         return False
     script = (
-        'tell application "Keynote"\n'
+        # Target by bundle id: "tell application \"Keynote\"" can resolve to
+        # another app named like Keynote (e.g. Keynote Creator Studio), which
+        # then fails to open the deck (AppleEvent timeout).
+        'tell application id "com.apple.iWork.Keynote"\n'
         f'  set theDoc to open POSIX file "{pptx_path}"\n'
         "  delay 3\n"
         f'  export theDoc to POSIX file "{out_pdf}" as PDF\n'
