@@ -1,0 +1,366 @@
+{
+  "generated_at": "2026-10-15 09:25:24",
+  "document": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+  "probes": [
+    {
+      "id": "open_closed_visual",
+      "query": "What two categories are contrasted on slide 4's open and closed weights comparison?",
+      "result": {
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "text_order": [
+          {
+            "chunk_id": "t3",
+            "slide": 4,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t4",
+            "slide": 5,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t14",
+            "slide": 15,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t25",
+            "slide": 26,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t39",
+            "slide": 40,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t22",
+            "slide": 23,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t40",
+            "slide": 41,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t17",
+            "slide": 18,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          }
+        ],
+        "page_order": [
+          {
+            "page_id": "p3",
+            "slide": 4,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p004.png"
+          },
+          {
+            "page_id": "p21",
+            "slide": 22,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p022.png"
+          },
+          {
+            "page_id": "p25",
+            "slide": 26,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p026.png"
+          },
+          {
+            "page_id": "p17",
+            "slide": 18,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p018.png"
+          },
+          {
+            "page_id": "p5",
+            "slide": 6,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p006.png"
+          },
+          {
+            "page_id": "p22",
+            "slide": 23,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p023.png"
+          },
+          {
+            "page_id": "p16",
+            "slide": 17,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p017.png"
+          },
+          {
+            "page_id": "p14",
+            "slide": 15,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p015.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "quantization",
+      "query": "What is quantization in LLMs?",
+      "result": {
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "text_order": [
+          {
+            "chunk_id": "t14",
+            "slide": 15,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t15",
+            "slide": 16,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t27",
+            "slide": 28,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t2",
+            "slide": 3,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t10",
+            "slide": 11,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t1",
+            "slide": 2,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t3",
+            "slide": 4,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t28",
+            "slide": 29,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          }
+        ],
+        "page_order": [
+          {
+            "page_id": "p14",
+            "slide": 15,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p015.png"
+          },
+          {
+            "page_id": "p15",
+            "slide": 16,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p016.png"
+          },
+          {
+            "page_id": "p17",
+            "slide": 18,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p018.png"
+          },
+          {
+            "page_id": "p25",
+            "slide": 26,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p026.png"
+          },
+          {
+            "page_id": "p23",
+            "slide": 24,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p024.png"
+          },
+          {
+            "page_id": "p12",
+            "slide": 13,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p013.png"
+          },
+          {
+            "page_id": "p7",
+            "slide": 8,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p008.png"
+          },
+          {
+            "page_id": "p10",
+            "slide": 11,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p011.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mcp_visual",
+      "query": "What does the MCP diagram show?",
+      "result": {
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "text_order": [
+          {
+            "chunk_id": "t41",
+            "slide": 42,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t38",
+            "slide": 39,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t14",
+            "slide": 15,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t25",
+            "slide": 26,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t4",
+            "slide": 5,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t37",
+            "slide": 38,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t39",
+            "slide": 40,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          },
+          {
+            "chunk_id": "t40",
+            "slide": 41,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx"
+          }
+        ],
+        "page_order": [
+          {
+            "page_id": "p41",
+            "slide": 42,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p042.png"
+          },
+          {
+            "page_id": "p12",
+            "slide": 13,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p013.png"
+          },
+          {
+            "page_id": "p13",
+            "slide": 14,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p014.png"
+          },
+          {
+            "page_id": "p0",
+            "slide": 1,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p001.png"
+          },
+          {
+            "page_id": "p9",
+            "slide": 10,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p010.png"
+          },
+          {
+            "page_id": "p23",
+            "slide": 24,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p024.png"
+          },
+          {
+            "page_id": "p16",
+            "slide": 17,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p017.png"
+          },
+          {
+            "page_id": "p14",
+            "slide": 15,
+            "page": null,
+            "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            "image_path": "MBAX 6418 - Week 2 - LLM Fundamentals v2_p015.png"
+          }
+        ]
+      }
+    }
+  ]
+}
