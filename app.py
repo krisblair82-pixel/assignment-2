@@ -71,15 +71,17 @@ def answer_question(question: str, document: str | None = None) -> tuple[str, st
 
 
 def _format_quiz(quiz: dict) -> str:
-    """Render only the public quiz artifact; never render its private key."""
+    """Render the quiz header and instructions only.
+
+    The questions themselves are shown once, as the clickable radio rows
+    below (each radio label is the question, its choices are the options),
+    so a question never appears twice on screen.
+    """
     lines = [f"### Practice quiz — `{quiz.get('doc_id', 'selected document')}`"]
     if quiz.get("topic"):
         lines.append(f"**Topic:** {quiz['topic']}")
-    lines.append("")
-    for number, question in enumerate(quiz.get("questions", []), 1):
-        lines.append(f"**{number}. {question.get('question', '')}**")
-        lines.extend(f"- {option}" for option in question.get("options", []))
-        lines.append("")
+    lines.append("Answer each question below, then click **Submit answers**. "
+                 "Solutions stay hidden until you reveal them.")
     return "\n".join(lines).strip()
 
 

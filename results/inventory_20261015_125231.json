@@ -1,0 +1,33 @@
+{
+ "generated_at": "2026-10-15 12:47:26",
+ "dry_run": false,
+ "files": [
+  {
+   "file": "MBAX 6418 - Week 2 - LLM Fundamentals v2.pptx",
+   "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+   "format": ".pptx",
+   "pages": 42,
+   "chunks": 42,
+   "images": 0,
+   "warning": "No LibreOffice/PowerPoint/Keynote available - text only. Export the deck to PDF manually for slide images."
+  },
+  {
+   "file": "MBAX 6418 - Week 3 - Prompt Engineering v1.pptx",
+   "doc_id": "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+   "format": ".pptx",
+   "pages": 33,
+   "chunks": 35,
+   "images": 0,
+   "warning": "No LibreOffice/PowerPoint/Keynote available - text only. Export the deck to PDF manually for slide images."
+  },
+  {
+   "file": "MBAX 6418 Syllabus Fall 2026.pdf",
+   "doc_id": "MBAX_6418_Syllabus_Fall_2026.pdf",
+   "format": ".pdf",
+   "pages": 7,
+   "chunks": 37,
+   "images": 7,
+   "warning": null
+  }
+ ]
+}

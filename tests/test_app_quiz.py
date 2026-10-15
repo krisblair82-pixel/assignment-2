@@ -31,8 +31,12 @@ def test_generate_quiz_ui_renders_questions_without_answer_key(monkeypatch):
 
     assert calls == {"doc_id": "week2", "topic": "attention", "n": 1}
     assert quiz_id == "quiz-1"
-    assert "Which method is used?" in output
-    assert "A. Attention" in output
+    # The question must appear exactly ONCE: in the clickable radio row,
+    # not duplicated in the markdown summary above it.
+    assert "Which method is used?" not in output
+    assert "Practice quiz" in output
+    assert "Which method is used?" in radio_updates[0]["label"]
+    assert "A. Attention" not in output
     assert "correct" not in output.lower()
     assert "week2" in status
     assert radio_updates[0]["choices"] == [

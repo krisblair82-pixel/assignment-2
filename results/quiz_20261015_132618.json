@@ -1,0 +1,98 @@
+{
+ "quiz_id": "20261015_132618",
+ "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+ "topic": null,
+ "n": 9,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "Which of the following is a characteristic of Open-Weight LLMs?",
+   "options": [
+    "A. They are always higher performing frontier models.",
+    "B. They have variable costs and credit allowances.",
+    "C. They are reproducible and private if run locally.",
+    "D. They are easier to use/deploy via interfaces."
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "Which of the following is listed as an example of a Closed-Weight LLM?",
+   "options": [
+    "A. Hugging Face",
+    "B. OpenRouter",
+    "C. Claude",
+    "D. ModelScope"
+   ]
+  },
+  {
+   "id": "q3",
+   "question": "According to the footnote on Slide 4, what do open and closed APIs allow you to do?",
+   "options": [
+    "A. Download models for free.",
+    "B. Send requests to an LLM service and receive model responses programmatically.",
+    "C. Run models locally without internet access.",
+    "D. Access the training data directly."
+   ]
+  },
+  {
+   "id": "q4",
+   "question": "What is the purpose of a 'knowledge cutoff date' in LLMs?",
+   "options": [
+    "A. To determine the cost of the model.",
+    "B. To clarify how up-to-date their training data is.",
+    "C. To limit the number of parameters.",
+    "D. To prevent copyright infringement."
+   ]
+  },
+  {
+   "id": "q5",
+   "question": "Which of the following is cited as an example of a fully open model in the context of training data?",
+   "options": [
+    "A. Claude",
+    "B. Gemini",
+    "C. Olmo from Ai2",
+    "D. GPT-4"
+   ]
+  },
+  {
+   "id": "q6",
+   "question": "According to the slide on Model Size and 'Intelligence', what tradeoffs should be considered when choosing a model?",
+   "options": [
+    "A. Speed vs. Accuracy",
+    "B. Size vs. knowledge vs. performance vs. cost",
+    "C. Open vs. Closed",
+    "D. Local vs. Cloud"
+   ]
+  },
+  {
+   "id": "q7",
+   "question": "Which of the following is listed as a benchmark evaluation tool?",
+   "options": [
+    "A. SWE-Bench Pro",
+    "B. Python 3.10",
+    "C. Docker Hub",
+    "D. GitHub Copilot"
+   ]
+  },
+  {
+   "id": "q8",
+   "question": "In the 'Cost per Task' chart on the Benchmark Evaluation slide, what does a lower value indicate?",
+   "options": [
+    "A. Lower intelligence.",
+    "B. Lower weighted average cost (USD) per Intelligence Index task.",
+    "C. Slower speed.",
+    "D. Higher parameter size."
+   ]
+  },
+  {
+   "id": "q9",
+   "question": "Where does the slide suggest looking for an additional chart for 'Speed'?",
+   "options": [
+    "A. The GitHub repository",
+    "B. The AAII website",
+    "C. The NVIDIA website",
+    "D. The Hugging Face website"
+   ]
+  }
+ ]
+}

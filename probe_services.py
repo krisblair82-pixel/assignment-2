@@ -18,7 +18,13 @@ with open(env_path, "r", encoding="utf-8") as f:
         line = line.strip()
         if line and not line.startswith("#") and "=" in line:
             k, v = line.split("=", 1)
-            ENV[k.strip()] = v.strip()
+            k = k.strip()
+            v = v.strip()
+            # Allow inline comments ("URL=value  # note"): cut at " #",
+            # then drop the spaces left before the comment.
+            if " #" in v:
+                v = v.split(" #", 1)[0].rstrip()
+            ENV[k] = v
 
 KEY = ENV.get("CLASS_API_KEY", "")
 LLM = ENV.get("LLM_BASE", "")
@@ -66,7 +72,10 @@ def list_models(base):
         if st == 200:
             models = [m.get("id") for m in body.get("data", [])]
             return url, models, dt
-    return None, None, None
+    # No endpoint answered 200 (bad key or service down). Return empty
+    # results instead of None so callers print a clean message rather
+    # than crashing on a None duration.
+    return None, [], 0.0
 
 def discover_paths(base):
     """FastAPI/openapi discovery to learn the actual routes."""
@@ -83,7 +92,10 @@ log("")
 # ---- 9001 Vision LLM ----
 log("## 9001 Vision LLM (Qwen3.6-35B-A3B)")
 url, models, dt = list_models(LLM)
-log(f"models route: {url}  ({dt:.1f}s)")
+if url is None:
+    log("models route: unreachable or auth failed (no HTTP 200 from /v1/models or /models)")
+else:
+    log(f"models route: {url}  ({dt:.1f}s)")
 log(f"served models: {models}")
 st, body, dt = http("GET", LLM + "/models")
 log(f"GET /v1/models -> {st} ({dt:.1f}s)")
@@ -104,7 +116,10 @@ if models:
 log("")
 log("## 9002 Text embeddings (Nemotron-3-Embed-1B)")
 url, models, dt = list_models(TEXT_EMB)
-log(f"models route: {url}  ({dt:.1f}s)")
+if url is None:
+    log("models route: unreachable or auth failed (no HTTP 200 from /v1/models or /models)")
+else:
+    log(f"models route: {url}  ({dt:.1f}s)")
 log(f"served models: {models}")
 paths = discover_paths(TEXT_EMB)
 log(f"discovered paths: {paths}")
@@ -123,7 +138,10 @@ for route in ("/v1/embeddings", "/embeddings"):
 log("")
 log("## 9003 Visual embeddings (Qwen3-VL-Embedding-2B)")
 url, models, dt = list_models(VIS_EMB)
-log(f"models route: {url}  ({dt:.1f}s)")
+if url is None:
+    log("models route: unreachable or auth failed (no HTTP 200 from /v1/models or /models)")
+else:
+    log(f"models route: {url}  ({dt:.1f}s)")
 log(f"served models: {models}")
 paths = discover_paths(VIS_EMB)
 log(f"discovered paths: {paths}")
@@ -142,7 +160,10 @@ for route in ("/v1/embeddings", "/embeddings"):
 log("")
 log("## 9004 Multimodal rerank (Qwen3-VL-Reranker-2B)")
 url, models, dt = list_models(RERANK)
-log(f"models route: {url}  ({dt:.1f}s)")
+if url is None:
+    log("models route: unreachable or auth failed (no HTTP 200 from /v1/models or /models)")
+else:
+    log(f"models route: {url}  ({dt:.1f}s)")
 log(f"served models: {models}")
 paths = discover_paths(RERANK)
 log(f"discovered paths: {paths}")
@@ -164,7 +185,10 @@ for route in ("/v1/score", "/v1/rerank", "/score", "/rerank"):
 log("")
 log("## 9005 Document parsing (dots.mocr)")
 url, models, dt = list_models(PARSE)
-log(f"models route: {url}  ({dt:.1f}s)")
+if url is None:
+    log("models route: unreachable or auth failed (no HTTP 200 from /v1/models or /models)")
+else:
+    log(f"models route: {url}  ({dt:.1f}s)")
 log(f"served models: {models}")
 paths = discover_paths(PARSE)
 log(f"discovered paths: {paths}")
