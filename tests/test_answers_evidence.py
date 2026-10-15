@@ -241,3 +241,35 @@ def test_cli_shows_image_evidence_path(monkeypatch, capsys, tmp_path):
     monkeypatch.setattr("sys.argv", ["answers.py", "What happened?"])
     answers.main()
     assert path in capsys.readouterr().out
+
+
+def test_top_text_slide_image_is_attached_from_index_when_visual_candidates_miss_it(
+    monkeypatch, tmp_path
+):
+    doc = "week-2.pptx"
+    slide_path = tmp_path / "slide-33.png"
+    visual_path = tmp_path / "slide-2.png"
+    slide_path.write_bytes(b"slide 33")
+    visual_path.write_bytes(b"slide 2")
+    chunk = {"doc_id": doc, "page": None, "slide": 33,
+             "section": None, "text": "Vibe Coding on Prod"}
+    indexed_page = {"doc_id": doc, "page": None, "slide": 33,
+                    "image_path": str(slide_path)}
+    visual_page = {"doc_id": doc, "page": None, "slide": 2,
+                   "image_path": str(visual_path)}
+    monkeypatch.setattr(answers, "ensure_configured", lambda: None)
+    monkeypatch.setattr(answers, "retrieve", lambda *args, **kwargs: {
+        "text_chunks": [chunk], "pages": [visual_page], "legs": {}}
+    )
+    monkeypatch.setattr(answers, "_load_index", lambda *args: {
+        "chunks": [chunk], "pages": [indexed_page, visual_page]})
+    reply = json.dumps({"answer": "The slide is about deploying vibe coding to production.",
+                        "sources": [{"doc_id": doc, "slide": 33,
+                                     "excerpt": "Vibe Coding on Prod"}]})
+    monkeypatch.setattr(answers, "ChatClient", lambda: FakeChat(reply))
+
+    result = answers.ask("Find the Vibe Coding on Prod slide.", index_path="synthetic.json")
+
+    assert result["covered"] is True
+    assert result["sources"][0]["image_path"] == str(slide_path)
+    assert result["pages_used"] == 2

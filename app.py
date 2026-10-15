@@ -159,11 +159,18 @@ def _docs_table() -> list[list]:
             for d in documents.list_documents()]
 
 
-def add_documents_ui(files: list | None) -> tuple[str, list[list], list[str], list[str]]:
+def _dropdown_update(choices: list[str]) -> dict:
+    """Update choices without passing the full list as a dropdown value."""
+    return gr.update(choices=choices, value=choices[0] if choices else None)
+
+
+def add_documents_ui(files: list | None) -> tuple[str, list[list], dict, dict]:
     """Upload handler: add each file (deduped), then return (status, table,
     ask-doc choices, quiz-doc choices)."""
     if not files:
-        return "No file selected.", _docs_table(), _available_documents(), _available_documents()
+        choices = _available_documents()
+        update = _dropdown_update(choices)
+        return "No file selected.", _docs_table(), update, update
     lines = []
     rebuild_once = True
     for item in files:
@@ -174,16 +181,20 @@ def add_documents_ui(files: list | None) -> tuple[str, list[list], list[str], li
         rebuild_once = False
         lines.append(("✅ " if ok else "⚠️ ") + message)
     choices = _available_documents()
-    return "\n".join(lines), _docs_table(), choices, choices
+    update = _dropdown_update(choices)
+    return "\n".join(lines), _docs_table(), update, update
 
 
-def remove_document_ui(doc_id: str | None) -> tuple[str, list[list], list[str], list[str], str]:
+def remove_document_ui(doc_id: str | None) -> tuple[str, list[list], dict, dict, str]:
     """Remove handler: delete doc + index entries, then refresh dropdowns."""
     if not doc_id:
-        return "Select a document to remove.", _docs_table(), _available_documents(), _available_documents(), ""
+        choices = _available_documents()
+        update = _dropdown_update(choices)
+        return "Select a document to remove.", _docs_table(), update, update, ""
     ok, message = documents.remove_document(doc_id)
     choices = _available_documents()
-    return (("✅ " if ok else "⚠️ ") + message, _docs_table(), choices, choices, "")
+    update = _dropdown_update(choices)
+    return (("✅ " if ok else "⚠️ ") + message, _docs_table(), update, update, "")
 
 
 def create_app() -> gr.Blocks:

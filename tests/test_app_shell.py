@@ -33,3 +33,19 @@ def test_app_shell_explains_accepted_material_formats():
     assert ".pptx" in ACCEPTED_FORMATS
     assert ".docx" in ACCEPTED_FORMATS
     assert ACCEPTED_FORMATS in rendered_values
+
+
+def test_document_handlers_update_dropdown_choices_not_values(monkeypatch):
+    import app
+
+    monkeypatch.setattr(app, "_available_documents",
+                        lambda: ["week2.pptx", "week3.pptx"])
+    monkeypatch.setattr(app, "_docs_table", lambda: [])
+
+    status, table, ask_update, quiz_update = app.add_documents_ui(None)
+
+    assert status == "No file selected."
+    assert table == []
+    assert ask_update["choices"] == ["week2.pptx", "week3.pptx"]
+    assert ask_update["value"] == "week2.pptx"
+    assert quiz_update["choices"] == ask_update["choices"]

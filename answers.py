@@ -225,6 +225,9 @@ def ask(question: str, doc_filter: str | None = None,
                     "schema_issues": [], "dropped_sources": [],
                     "note": "no evidence to answer from"}}
 
+    index_data = _load_index(index_path)
+    indexed_pages = index_data.get("pages", [])
+
     # Attach the ORIGINAL page/slide images that correspond to the TOP text
     # evidence (requirement 2a + meme test): the model must SEE the slide it
     # is asked about. Visual ranking and text ranking can disagree, so the
@@ -233,19 +236,27 @@ def ask(question: str, doc_filter: str | None = None,
     top_locs = [(c.get("doc_id"), c.get("page"), c.get("slide"))
                 for c in text_chunks[:3]]
     matched = []
+    # Visual retrieval can rank a different page above the page identified by
+    # text retrieval. Pull matching original images from the index as a
+    # fallback so the model always sees the slide supporting the top text
+    # evidence (especially important for named meme/chart/diagram slides).
+    page_candidates = list(pages)
+    for indexed in indexed_pages:
+        if indexed not in page_candidates:
+            page_candidates.append(indexed)
     for loc in top_locs:
-        for p in pages:
+        for p in page_candidates:
             if ((p.get("doc_id"), p.get("page"), p.get("slide")) == loc
                     and p not in matched):
                 matched.append(p)
                 break
-    attached_pages = (matched + [p for p in pages if p not in matched])[:3]
+    attached_pages = (matched + [p for p in page_candidates if p not in matched])[:3]
     messages = build_messages(text_chunks, attached_pages, question)
     chat = ChatClient()
     raw = chat.complete(messages, max_tokens=MAX_TOKENS)
     data = ({"answer": "NOT_COVERED", "sources": []}
             if raw.strip().upper() == "NOT_COVERED" else _extract_json(raw))
-    result, issues = ground(data, _load_index(index_path).get("chunks", []),
+    result, issues = ground(data, index_data.get("chunks", []),
                             images=attached_pages)
     if result is None:
         result = {"answer": "NOT_COVERED (could not parse a structured answer)",
@@ -276,7 +287,7 @@ def ask(question: str, doc_filter: str | None = None,
         raw2 = chat.complete(retry_messages, max_tokens=MAX_TOKENS)
         data2 = ({"answer": "NOT_COVERED", "sources": []}
                  if raw2.strip().upper() == "NOT_COVERED" else _extract_json(raw2))
-        result2, issues2 = ground(data2, _load_index(index_path).get("chunks", []),
+        result2, issues2 = ground(data2, index_data.get("chunks", []),
                                   images=attached_pages)
         if result2 is not None:
             covered2 = result2["answer"].strip().upper() != "NOT_COVERED"
@@ -289,7 +300,7 @@ def ask(question: str, doc_filter: str | None = None,
         # for every verified source across ALL retrieved page candidates, not
         # just the pages the model saw - so the answer is shown alongside the
         # actual slide that supports it.
-        for page in pages:
+        for page in page_candidates:
             if (source["doc_id"] == page["doc_id"]
                     and source.get("page") == page.get("page")
                     and source.get("slide") == page.get("slide")):
