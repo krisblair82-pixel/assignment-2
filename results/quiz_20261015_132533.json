@@ -1,0 +1,88 @@
+{
+ "quiz_id": "20261015_132533",
+ "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+ "topic": null,
+ "n": 8,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "Which of the following is a stated benefit of Open-Weight LLMs?",
+   "options": [
+    "A. They are higher performing frontier models.",
+    "B. They are free to download and can be run locally.",
+    "C. They have variable costs/credit allowances.",
+    "D. They are easier to use/deploy via interfaces."
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "Which of the following is listed as an example of a Closed-Weight LLM?",
+   "options": [
+    "A. Hugging Face",
+    "B. OpenRouter",
+    "C. Claude",
+    "D. ModelScope"
+   ]
+  },
+  {
+   "id": "q3",
+   "question": "What is the purpose of a 'knowledge cutoff date' mentioned in the Training Data section?",
+   "options": [
+    "A. To indicate the cost of the model.",
+    "B. To clarify how up-to-date their training data is.",
+    "C. To show the number of parameters.",
+    "D. To list the benchmark scores."
+   ]
+  },
+  {
+   "id": "q4",
+   "question": "Which of the following is cited as an example of a fully open model?",
+   "options": [
+    "A. Claude",
+    "B. Gemini",
+    "C. Olmo from Ai2",
+    "D. GPT-4"
+   ]
+  },
+  {
+   "id": "q5",
+   "question": "According to the slide on Model Size and 'Intelligence', what tradeoffs should be considered?",
+   "options": [
+    "A. Speed vs. Accuracy",
+    "B. Size vs. knowledge vs. performance vs. cost",
+    "C. Open vs. Closed weights",
+    "D. Local vs. Cloud deployment"
+   ]
+  },
+  {
+   "id": "q6",
+   "question": "What does the chart on Slide 6 primarily illustrate?",
+   "options": [
+    "A. The cost per task for different models.",
+    "B. The relationship between model size (billions of parameters) and Agentic Performance.",
+    "C. The number of training data points.",
+    "D. The speed of different models."
+   ]
+  },
+  {
+   "id": "q7",
+   "question": "Which of the following is NOT listed as a benchmark evaluation tool in the slide?",
+   "options": [
+    "A. SWE-Bench Pro",
+    "B. DeepSWE",
+    "C. Turing Test",
+    "D. Terminal-Bench"
+   ]
+  },
+  {
+   "id": "q8",
+   "question": "According to the footnote on Slide 4, what is the function of open and closed APIs?",
+   "options": [
+    "A. They allow you to send requests to an LLM service and receive model responses programmatically.",
+    "B. They are used to train models on large corpuses of data.",
+    "C. They are used to calculate the 'knowledge cutoff date'.",
+    "D. They are used to benchmark model intelligence."
+   ]
+  }
+ ]
+}

@@ -1,0 +1,58 @@
+{
+ "quiz_id": "20261015_130506",
+ "doc_id": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+ "topic": null,
+ "n": 5,
+ "questions": [
+  {
+   "id": "q1",
+   "question": "According to the 'Open- vs. Closed-Weight LLMs' slide, which of the following is a characteristic of Open-Weight models?",
+   "options": [
+    "A. They are higher performing frontier models.",
+    "B. They are free to download and can be run locally.",
+    "C. They have variable costs and credit allowances.",
+    "D. They are easier to use/deploy via interfaces."
+   ]
+  },
+  {
+   "id": "q2",
+   "question": "Which of the following is cited as an example of a fully open model in the 'Training Data' section?",
+   "options": [
+    "A. Claude",
+    "B. Gemini",
+    "C. Olmo from Ai2",
+    "D. The New York Times Company"
+   ]
+  },
+  {
+   "id": "q3",
+   "question": "What tradeoffs should be considered when evaluating model size and intelligence?",
+   "options": [
+    "A. Speed vs. Accuracy vs. Cost vs. Privacy",
+    "B. Size vs. Knowledge vs. Performance vs. Cost",
+    "C. Open vs. Closed vs. Local vs. Cloud",
+    "D. Input vs. Output vs. Context vs. Tokens"
+   ]
+  },
+  {
+   "id": "q4",
+   "question": "How is 'context' defined in the context of LLMs?",
+   "options": [
+    "A. The total number of parameters in the model.",
+    "B. How much text (or other information) a model can access while generating subsequent tokens.",
+    "C. The cost per task for using the model.",
+    "D. The specific programming language the model is trained on."
+   ]
+  },
+  {
+   "id": "q5",
+   "question": "Which of the following is listed as a benchmark evaluation tool for LLMs?",
+   "options": [
+    "A. SWE-Bench Pro",
+    "B. GitHub Copilot",
+    "C. Hugging Face",
+    "D. NVIDIA Nemotron"
+   ]
+  }
+ ]
+}
