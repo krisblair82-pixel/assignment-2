@@ -139,6 +139,35 @@ def run_evals(eval_path: str = DEFAULT_EVAL_PATH,
     return output_path, report
 
 
+def run_comparison(eval_path: str = DEFAULT_EVAL_PATH,
+                   index_path: str | None = None,
+                   output_dir: str = RESULTS_DIR,
+                   limit: int | None = None) -> tuple[str, dict]:
+    """Run hybrid and keyword-only evaluations and save one comparison report."""
+    hybrid_path, hybrid = run_evals(eval_path, index_path, output_dir, limit,
+                                    mode="hybrid")
+    keyword_path, keyword = run_evals(eval_path, index_path, output_dir, limit,
+                                      mode="keyword")
+    report = {
+        "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "eval_set": os.path.basename(eval_path),
+        "index": os.path.basename(index_path or os.path.join(INDEX_DIR, "index.json")),
+        "modes": ["hybrid", "keyword"],
+        "runs": {
+            "hybrid": {"path": os.path.basename(hybrid_path),
+                        "summary": hybrid["summary"]},
+            "keyword": {"path": os.path.basename(keyword_path),
+                         "summary": keyword["summary"]},
+        },
+    }
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(
+        output_dir, f"comparison_{time.strftime('%Y%m%d_%H%M%S')}.json")
+    with open(output_path, "w", encoding="utf-8") as handle:
+        json.dump(report, handle, indent=2)
+    return output_path, report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run retrieval and grounded-answer evaluations")
     parser.add_argument("--eval-set", default=DEFAULT_EVAL_PATH)
@@ -147,7 +176,16 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--mode", choices=["hybrid", "keyword"], default="hybrid",
                         help="hybrid = all legs; keyword = bm25-only baseline (issue #5)")
+    parser.add_argument("--compare", action="store_true",
+                        help="run hybrid and keyword modes and save comparison_*.json")
     args = parser.parse_args()
+    if args.compare:
+        output_path, report = run_comparison(args.eval_set, args.index, args.output_dir,
+                                             args.limit)
+        print(f"saved: {output_path}")
+        print(json.dumps({mode: report["runs"][mode]["summary"]
+                          for mode in report["modes"]}, sort_keys=True))
+        return
     output_path, report = run_evals(args.eval_set, args.index, args.output_dir,
                                     args.limit, mode=args.mode)
     print(f"saved: {output_path}")

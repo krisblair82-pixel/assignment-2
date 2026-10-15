@@ -86,6 +86,28 @@ def test_run_evals_writes_timestamped_artifact(monkeypatch, tmp_path):
     assert report["summary"]["cases"] == 1
 
 
+def test_run_comparison_writes_both_modes(monkeypatch, tmp_path):
+    import run_evals
+
+    calls = []
+
+    def fake_run(eval_path, index_path, output_dir, limit, mode):
+        calls.append(mode)
+        return f"{mode}.json", {"summary": {"mode": mode, "cases": 2}}
+
+    monkeypatch.setattr(run_evals, "run_evals", fake_run)
+    output_path, report = run_evals.run_comparison(
+        "eval.json", "index.json", str(tmp_path)
+    )
+
+    assert calls == ["hybrid", "keyword"]
+    assert output_path.startswith(str(tmp_path))
+    assert output_path.endswith(".json")
+    assert report["modes"] == ["hybrid", "keyword"]
+    assert report["runs"]["hybrid"]["summary"]["mode"] == "hybrid"
+    assert report["runs"]["keyword"]["summary"]["mode"] == "keyword"
+
+
 def test_readme_documents_one_command_evaluation_invocation():
     from pathlib import Path
 

@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-10-14 14:24:24",
+  "eval_set": "eval_questions.json",
+  "index": "index.json",
+  "modes": [
+    "hybrid",
+    "keyword"
+  ],
+  "runs": {
+    "hybrid": {
+      "path": "eval_20261014_142255.json",
+      "summary": {
+        "mode": "hybrid",
+        "cases": 16,
+        "retrieval_hits": 15,
+        "grounded_answers": 16,
+        "not_covered_cases": 1,
+        "not_covered_passes": 1,
+        "total_time_ms": 136488.2,
+        "avg_time_ms": 8530.5
+      }
+    },
+    "keyword": {
+      "path": "eval_20261014_142424.json",
+      "summary": {
+        "mode": "keyword",
+        "cases": 16,
+        "retrieval_hits": 15,
+        "grounded_answers": 15,
+        "not_covered_cases": 1,
+        "not_covered_passes": 1,
+        "total_time_ms": 88752.8,
+        "avg_time_ms": 5547.1
+      }
+    }
+  }
+}

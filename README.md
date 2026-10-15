@@ -62,7 +62,8 @@ python probe_services.py        # checks all 5 services (scrubbed output)
 python smoke.py                 # live smoke: embed / rerank / chat / parse
 python ingest.py                # parse + chunk everything in materials/
 python retrieval.py build       # build bm25 + text + visual indexes
-python run_evals.py             # 16-question evaluation suite (hybrid)
+python run_evals.py             # 16-question hybrid evaluation
+python run_evals.py --compare  # hybrid vs keyword-only; saves comparison_*.json
 ```
 
 ### Supplying API keys without committing them
