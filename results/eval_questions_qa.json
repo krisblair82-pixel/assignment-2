@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "description": "Eight-question QA/comparison set using the same locally indexed Week 2 and Week 3 decks. Includes slide text, two visual questions, one missing syllabus question, and one deliberately uncovered question.",
+  "course_files": [
+    "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+    "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+    "MBAX_6418_Syllabus_Fall_2026.pdf (not present in the local index; expected missing-information behavior)"
+  ],
+  "questions": [
+    {
+      "id": "qa01_open_weights",
+      "question": "What are two characteristics of open-weight LLMs?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 4, "modality": "text"}],
+      "required_answer_terms": ["free to download", "reproducible", "private"]
+    },
+    {
+      "id": "qa02_model_size",
+      "question": "What tradeoffs should be considered when choosing model size?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 6, "modality": "text"}],
+      "required_answer_terms": ["size", "knowledge", "performance", "cost"]
+    },
+    {
+      "id": "qa03_prompt_caching",
+      "question": "How does prompt caching improve performance across requests?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 12, "modality": "text"}],
+      "required_answer_terms": ["KV cache", "reused", "requests"]
+    },
+    {
+      "id": "qa04_mcp_visual",
+      "question": "Look at the MCP slide. What kinds of add-ons can Model Context Protocol interfaces access?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 42, "modality": "visual"}],
+      "required_answer_terms": ["tools", "data", "APIs"]
+    },
+    {
+      "id": "qa05_meme_visual",
+      "question": "Find the Vibe Coding on \"Prod\" meme. Which slide shows it, what meme format is used, and what does it say?",
+      "doc_filter": "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+      "expected_sources": [{"slide": 33, "modality": "visual"}],
+      "required_answer_terms": ["33", "one does not simply", "vibe code", "production"]
+    },
+    {
+      "id": "qa06_week3_prompts",
+      "question": "According to the Week 3 slides, what kinds of content can prompts consist of besides text?",
+      "doc_filter": "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+      "expected_sources": [{"slide": 4, "modality": "text"}],
+      "required_answer_terms": ["images", "audio", "video", "multimodal"]
+    },
+    {
+      "id": "qa07_syllabus_missing",
+      "question": "According to the course syllabus, what percentage of the final grade comes from quizzes?",
+      "doc_filter": "MBAX_6418_Syllabus_Fall_2026.pdf",
+      "expected_answer": "NOT_COVERED",
+      "expected_sources": [],
+      "required_answer_terms": []
+    },
+    {
+      "id": "qa08_unknown_missing",
+      "question": "What was the instructor's favorite programming language in high school?",
+      "expected_answer": "NOT_COVERED",
+      "expected_sources": [],
+      "required_answer_terms": []
+    }
+  ]
+}

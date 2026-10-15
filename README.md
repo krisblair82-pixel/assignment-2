@@ -82,7 +82,7 @@ python app.py          # opens http://127.0.0.1:7860
 Three tabs:
 
 1. **Ask a question** — optional document filter; the answer panel shows verified sources with real excerpts, and a gallery shows the original page/slide images that support the answer.
-2. **Practice quiz** — pick a document (+ optional topic phrase), choose 1–10 questions, answer in JSON (`{"q1": 0, "q2": 2}`), get scored, then reveal solutions/explanations with sources when ready.
+2. **Practice quiz** — pick a document (+ optional topic phrase), choose 1–10 questions, click one answer choice per question, get scored, then reveal solutions/explanations with sources when ready.
 3. **Course materials** — add files (multiple at once) or remove documents. Adding runs parsing + indexing for that file; removing deletes the file, its chunks, page images, and index entries, then rebuilds search indexes.
 
 ### Supported formats and PowerPoint conversion
@@ -100,12 +100,12 @@ If no converter is available, ingestion warns and indexes the deck **text-only**
 ## Testing
 
 ```bash
-python -m pytest -q        # 52 tests: unit + end-to-end + secret scan (see tests/)
+python -m pytest -q        # 64 tests: unit + end-to-end + secret scan (see tests/)
 python run_evals.py        # hybrid: full retrieval + grounded answers over the 16-question set
 python run_evals.py --mode keyword   # issue #5 baseline: bm25 keyword search only
 ```
 
-What is tested: adding/removing files (dedupe, index cleanup), answering text and image questions, quiz generation/scoring (answer keys stay hidden), missing-information handling, repeated uploads, unavailable services (resilient leg fallback), light/dark mode readability (Gradio themes), and the secret scanner. What remains unchecked: fresh installs on Windows hardware (COM rendering) and macOS Keynote conversion — see *Limitations*.
+What is tested: adding/removing files (dedupe, index cleanup, batch uploads), answering text and image questions, quiz generation/scoring (answer keys stay hidden), missing-information handling, repeated uploads, unavailable services (resilient leg fallback), light/dark mode readability (Gradio themes), the focused QA comparison, and the secret scanner. What remains unchecked: fresh installs on Windows hardware (COM rendering) and macOS Keynote conversion — see *Limitations*.
 
 Screenshots are reproducible: `python -m playwright install chromium && python scripts/capture_screenshots.py` (requires the app running; re-generates `assets/screenshots/*.png`).
 
@@ -147,6 +147,70 @@ Per-question retrieval source hits (hybrid then keyword):
 **Interpretation:** retrieval *location* is equally good in both modes (15/16 — the miss is the deliberate not-covered case), and keyword-only is ~35% faster because it skips embedding and reranking calls. But hybrid grounded **all 16** answers while keyword-only grounded **15** — it fails q14, the syllabus-grading question, because the grading table is parsed as HTML and keyword search matches table markup poorly; the dense text leg retrieves the right chunk by meaning. Critically, keyword-only retrieval cannot return *page/slide images*: the visual leg is what lets the app **show the actual meme slide** (q13) and diagram images, which the assignment explicitly requires. We keep the full hybrid pipeline: the extra ~3 seconds per question buy visual evidence and stronger grounding on table-heavy material.
 
 Regression: `scripts/make_comparison_table.py` regenerates these tables from the latest transcripts (`python scripts/make_comparison_table.py`).
+
+## Focused QA evaluation and design comparison
+
+The original 16-question regression evaluation remains in `results/eval_questions.json`. The focused QA/comparison set requested for this assignment is `results/eval_questions_qa.json`; its two raw run reports and comparison summary are committed under `results/`.
+
+### Focused 8-question set
+
+The same local index and the same two available course files were used for both approaches:
+
+- `MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx`
+- `MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx`
+
+The syllabus question is intentionally included, but `MBAX_6418_Syllabus_Fall_2026.pdf` was not present in the local index. It therefore tests whether the assistant acknowledges missing information rather than inventing the quiz percentage.
+
+| ID | Question | Expected evidence |
+|---|---|---|
+| qa01 | What are two characteristics of open-weight LLMs? | Week 2 slide 4 text |
+| qa02 | What tradeoffs should be considered when choosing model size? | Week 2 slide 6 text |
+| qa03 | How does prompt caching improve performance across requests? | Week 2 slide 12 text |
+| qa04 | What add-ons can MCP interfaces access? | Week 2 slide 42 visual/text slide |
+| qa05 | Find the Vibe Coding on “Prod” meme: slide, format, and wording. | Week 2 slide 33 visual meme |
+| qa06 | What non-text content can prompts contain? | Week 3 slide 4 text |
+| qa07 | According to the syllabus, what percentage of the final grade comes from quizzes? | Expected `NOT_COVERED`; syllabus missing locally |
+| qa08 | What was the instructor’s favorite programming language in high school? | Expected `NOT_COVERED`; not in the materials |
+
+“Correct” is an automated answer-content check against the required terms in the gold set (or an exact `NOT_COVERED` response). “Sources supported” means the returned source location matches the expected slide/page; for uncovered questions it means no source was returned. Latency is measured end-to-end per question, including retrieval and answer generation.
+
+### Hybrid versus keyword-only on the same set
+
+Hybrid used BM25 + dense text + visual retrieval + multimodal reranking. The baseline used BM25 only. The corrected evaluation runner passes the selected retrieval mode into answer generation, so the model does not silently fall back to hybrid retrieval during the baseline run.
+
+| Metric | Hybrid | Keyword-only |
+|---|---:|---:|
+| Correct answers | 8/8 | 7/8 |
+| Sources supported | 8/8 | 8/8 |
+| Grounded/schema-valid answers | 7/8 | 8/8 |
+| Expected missing-information cases | 2 | 2 |
+| Correct missing-information refusals | 1/2 | 2/2 |
+| Total time | 46.51s | 33.10s |
+| Average time/question | 5.81s | 4.14s |
+
+| ID | Hybrid correctness / source / time | Keyword correctness / source / time |
+|---|---|---|
+| qa01 open weights | ✅ / ✅ / 8.41s | ✅ / ✅ / 3.47s |
+| qa02 model size | ✅ / ✅ / 7.74s | ✅ / ✅ / 3.91s |
+| qa03 prompt caching | ✅ / ✅ / 6.91s | ❌ / ✅ / 3.45s |
+| qa04 MCP visual | ✅ / ✅ / 4.74s | ✅ / ✅ / 2.42s |
+| qa05 Vibe Coding meme | ✅ / ✅ / 5.76s | ✅ / ✅ / 4.00s |
+| qa06 Week 3 prompts | ✅ / ✅ / 5.17s | ✅ / ✅ / 2.97s |
+| qa07 missing syllabus | ✅ / ✅ / 1.55s | ✅ / ✅ / 0.01s |
+| qa08 unknown fact | ✅ / ✅ / 6.23s | ✅ / ✅ / 12.86s |
+
+### Interpretation and decision
+
+I would keep the **hybrid pipeline** for the application. It answered all six answerable questions correctly, including both visual questions, and supplied supported sources for every case. It also handled the Vibe Coding meme by retrieving slide 33 and grounding the answer in the original slide image. The keyword-only baseline was about 29% faster overall and was adequate for most text questions, but it missed the required prompt-caching detail and cannot perform visual retrieval or provide visual evidence candidates.
+
+The hybrid run had one schema-validation failure on the deliberately uncovered high-school-programming-language question even though the answer content correctly refused to answer. This is recorded as a limitation rather than counted as a successful grounded answer. The app still failed closed and did not invent a fact. The missing syllabus question was correctly refused by both approaches because the syllabus file is absent from the local index; the percentage cannot be reported until that course file is added and indexed.
+
+The raw, scrubbed evidence is `results/comparison_20261015_104050.json`, with per-mode reports `results/eval_20261015_104017.json` and `results/eval_20261015_104050.json`. Re-run with:
+
+```bash
+python run_evals.py --compare --eval-set results/eval_questions_qa.json
+```
+
 
 ## Known limitations and failures investigated
 

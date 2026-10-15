@@ -1,0 +1,827 @@
+{
+  "generated_at": "2026-10-15 10:40:17",
+  "eval_set": "eval_questions_qa.json",
+  "index": "index.json",
+  "summary": {
+    "mode": "hybrid",
+    "cases": 8,
+    "retrieval_hits": 7,
+    "grounded_answers": 7,
+    "correct_answers": 8,
+    "supported_sources": 8,
+    "not_covered_cases": 2,
+    "not_covered_passes": 1,
+    "total_time_ms": 46509.1,
+    "avg_time_ms": 5813.6
+  },
+  "results": [
+    {
+      "id": "qa01_open_weights",
+      "question": "What are two characteristics of open-weight LLMs?",
+      "elapsed_ms": 8410.2,
+      "retrieval": {
+        "source_hit": true,
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            4
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            11
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            28
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            3
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            25
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            2
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            40
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            4
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            24
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            22
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            8
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            13
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            23
+          ]
+        ]
+      },
+      "answer": {
+        "covered": true,
+        "returned_not_covered": false,
+        "expected_not_covered": false,
+        "correct": true,
+        "sources_supported": true,
+        "grounded": true,
+        "source_locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            4
+          ]
+        ],
+        "schema_issue_count": 0
+      }
+    },
+    {
+      "id": "qa02_model_size",
+      "question": "What tradeoffs should be considered when choosing model size?",
+      "elapsed_ms": 7738.6,
+      "retrieval": {
+        "source_hit": true,
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            6
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            21
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            24
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            11
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            5
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            18
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            10
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            24
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            18
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            4
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            6
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            21
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            25
+          ]
+        ]
+      },
+      "answer": {
+        "covered": true,
+        "returned_not_covered": false,
+        "expected_not_covered": false,
+        "correct": true,
+        "sources_supported": true,
+        "grounded": true,
+        "source_locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            6
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            21
+          ]
+        ],
+        "schema_issue_count": 0
+      }
+    },
+    {
+      "id": "qa03_prompt_caching",
+      "question": "How does prompt caching improve performance across requests?",
+      "elapsed_ms": 6905.7,
+      "retrieval": {
+        "source_hit": true,
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            12
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            14
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            11
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            18
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            32
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            16
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            11
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            12
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            14
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            13
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            24
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            10
+          ]
+        ]
+      },
+      "answer": {
+        "covered": true,
+        "returned_not_covered": false,
+        "expected_not_covered": false,
+        "correct": true,
+        "sources_supported": true,
+        "grounded": true,
+        "source_locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            12
+          ]
+        ],
+        "schema_issue_count": 0
+      }
+    },
+    {
+      "id": "qa04_mcp_visual",
+      "question": "Look at the MCP slide. What kinds of add-ons can Model Context Protocol interfaces access?",
+      "elapsed_ms": 4737.7,
+      "retrieval": {
+        "source_hit": true,
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            42
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            8
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            36
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            23
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            41
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            13
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            1
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            42
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            26
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            4
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            35
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            8
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            22
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            2
+          ]
+        ]
+      },
+      "answer": {
+        "covered": true,
+        "returned_not_covered": false,
+        "expected_not_covered": false,
+        "correct": true,
+        "sources_supported": true,
+        "grounded": true,
+        "source_locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            42
+          ]
+        ],
+        "schema_issue_count": 0
+      }
+    },
+    {
+      "id": "qa05_meme_visual",
+      "question": "Find the Vibe Coding on \"Prod\" meme. Which slide shows it, what meme format is used, and what does it say?",
+      "elapsed_ms": 5756.8,
+      "retrieval": {
+        "source_hit": true,
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            33
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            29
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            30
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            2
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            41
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            40
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            18
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            2
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            36
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            35
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            31
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            30
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            27
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            42
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            29
+          ]
+        ]
+      },
+      "answer": {
+        "covered": true,
+        "returned_not_covered": false,
+        "expected_not_covered": false,
+        "correct": true,
+        "sources_supported": true,
+        "grounded": true,
+        "source_locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            33
+          ]
+        ],
+        "schema_issue_count": 0
+      }
+    },
+    {
+      "id": "qa06_week3_prompts",
+      "question": "According to the Week 3 slides, what kinds of content can prompts consist of besides text?",
+      "elapsed_ms": 5174.6,
+      "retrieval": {
+        "source_hit": true,
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "locations": [
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            4
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            10
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            5
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            11
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            6
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            23
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            19
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            2
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            4
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            14
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            1
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            6
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            28
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            7
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            9
+          ]
+        ]
+      },
+      "answer": {
+        "covered": true,
+        "returned_not_covered": false,
+        "expected_not_covered": false,
+        "correct": true,
+        "sources_supported": true,
+        "grounded": true,
+        "source_locations": [
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            4
+          ]
+        ],
+        "schema_issue_count": 0
+      }
+    },
+    {
+      "id": "qa07_syllabus_missing",
+      "question": "According to the course syllabus, what percentage of the final grade comes from quizzes?",
+      "elapsed_ms": 1550.5,
+      "retrieval": {
+        "source_hit": true,
+        "legs": {
+          "bm25": 0,
+          "text_dense": 0,
+          "visual": 0,
+          "rerank": 0
+        },
+        "locations": []
+      },
+      "answer": {
+        "covered": false,
+        "returned_not_covered": true,
+        "expected_not_covered": true,
+        "correct": true,
+        "sources_supported": true,
+        "grounded": true,
+        "source_locations": [],
+        "schema_issue_count": 0
+      }
+    },
+    {
+      "id": "qa08_unknown_missing",
+      "question": "What was the instructor's favorite programming language in high school?",
+      "elapsed_ms": 6234.4,
+      "retrieval": {
+        "source_hit": false,
+        "legs": {
+          "bm25": 8,
+          "text_dense": 8,
+          "visual": 8,
+          "rerank": 8
+        },
+        "locations": [
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            32
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            24
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            2
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            20
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            21
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            19
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            25
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            30
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            29
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            23
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            22
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            15
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            2
+          ],
+          [
+            "MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx",
+            null,
+            38
+          ],
+          [
+            "MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx",
+            null,
+            24
+          ]
+        ]
+      },
+      "answer": {
+        "covered": false,
+        "returned_not_covered": true,
+        "expected_not_covered": true,
+        "correct": true,
+        "sources_supported": true,
+        "grounded": false,
+        "source_locations": [],
+        "schema_issue_count": 1
+      }
+    }
+  ]
+}

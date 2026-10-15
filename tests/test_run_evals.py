@@ -39,6 +39,53 @@ def test_evaluate_case_checks_retrieval_and_grounded_answer(monkeypatch):
     assert result["answer"]["grounded"] is True
 
 
+def test_evaluate_case_passes_selected_retrieval_mode_to_answer(monkeypatch):
+    import run_evals
+
+    seen = {}
+    monkeypatch.setattr(run_evals, "retrieve", lambda *args, **kwargs: {
+        "text_chunks": [], "pages": [], "legs": {}
+    })
+
+    def fake_ask(*args, **kwargs):
+        seen["enabled_legs"] = kwargs.get("enabled_legs")
+        return {"covered": False, "answer": "NOT_COVERED", "sources": [],
+                "validation": {"schema_issues": []}}
+
+    monkeypatch.setattr(run_evals, "ask", fake_ask)
+    run_evals.evaluate_case({"id": "q", "question": "Q",
+                             "expected_sources": [],
+                             "expected_answer": "NOT_COVERED"},
+                            "index.json", enabled_legs={"bm25"})
+    assert seen["enabled_legs"] == {"bm25"}
+
+
+def test_evaluate_case_records_answer_correctness_and_source_support(monkeypatch):
+    import run_evals
+
+    monkeypatch.setattr(run_evals, "retrieve", lambda *args, **kwargs: {
+        "text_chunks": [{"doc_id": "week2.pptx", "slide": 4,
+                          "text": "Free to download and reproducible private."}],
+        "pages": [], "legs": {}
+    })
+    monkeypatch.setattr(run_evals, "ask", lambda *args, **kwargs: {
+        "covered": True,
+        "answer": "Open weights are free to download, reproducible, and private.",
+        "sources": [{"doc_id": "week2.pptx", "slide": 4,
+                     "excerpt": "Free to download and reproducible private."}],
+        "validation": {"schema_issues": []},
+    })
+
+    result = run_evals.evaluate_case({
+        "id": "q", "question": "What are open weights?",
+        "expected_sources": [{"slide": 4}],
+        "required_answer_terms": ["free to download", "reproducible", "private"],
+    }, "index.json")
+
+    assert result["answer"]["correct"] is True
+    assert result["answer"]["sources_supported"] is True
+
+
 def test_evaluate_case_accepts_expected_not_covered(monkeypatch):
     import run_evals
 

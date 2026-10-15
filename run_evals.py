@@ -52,6 +52,21 @@ def _expected_hit(expected: list[dict], retrieved: list[dict]) -> bool:
     )
 
 
+def _location_matches(expected: dict, actual: dict) -> bool:
+    return ((expected.get("slide") is None or expected.get("slide") == actual.get("slide"))
+            and (expected.get("page") is None or expected.get("page") == actual.get("page"))
+            and (expected.get("doc_id") is None or expected.get("doc_id") == actual.get("doc_id")))
+
+
+def _sources_supported(expected: list[dict], sources: list[dict], expected_not_covered: bool) -> bool:
+    if expected_not_covered:
+        return not sources
+    return bool(expected) and any(
+        _location_matches(item, source)
+        for item in expected for source in sources
+    )
+
+
 def evaluate_case(case: dict, index_path: str,
                   enabled_legs: set | None = None) -> dict:
     question = case["question"]
@@ -63,13 +78,20 @@ def evaluate_case(case: dict, index_path: str,
     expected_sources = case.get("expected_sources", [])
     retrieval_hit = _expected_hit(expected_sources, retrieved)
 
-    result = ask(question, doc_filter=doc_filter, index_path=index_path)
+    result = ask(question, doc_filter=doc_filter, index_path=index_path,
+                 enabled_legs=enabled_legs)
     elapsed_ms = round((time.perf_counter() - started) * 1000, 1)
     answer_text = (result.get("answer") or "").strip()
     normalized = answer_text.upper()
     expected_not_covered = case.get("expected_answer") == "NOT_COVERED"
     returned_not_covered = normalized == "NOT_COVERED" or normalized.startswith("NOT_COVERED ")
     schema_issues = result.get("validation", {}).get("schema_issues", [])
+    required_terms = [str(term).lower() for term in case.get("required_answer_terms", [])]
+    answer_correct = ((expected_not_covered and returned_not_covered)
+                      or (not expected_not_covered and not returned_not_covered
+                          and all(term in answer_text.lower() for term in required_terms)))
+    sources_supported = _sources_supported(expected_sources, result.get("sources", []),
+                                           expected_not_covered)
     answer_grounded = not schema_issues and (
         (expected_not_covered and returned_not_covered and not result.get("sources"))
         or (not expected_not_covered and result.get("covered") and bool(result.get("sources")))
@@ -88,6 +110,8 @@ def evaluate_case(case: dict, index_path: str,
             "covered": bool(result.get("covered")),
             "returned_not_covered": returned_not_covered,
             "expected_not_covered": expected_not_covered,
+            "correct": answer_correct,
+            "sources_supported": sources_supported,
             "grounded": answer_grounded,
             "source_locations": [_location(item) for item in result.get("sources", [])],
             "schema_issue_count": len(schema_issues),
@@ -115,6 +139,8 @@ def run_evals(eval_path: str = DEFAULT_EVAL_PATH,
         "cases": len(results),
         "retrieval_hits": sum(item["retrieval"]["source_hit"] for item in results),
         "grounded_answers": sum(item["answer"]["grounded"] for item in results),
+        "correct_answers": sum(item["answer"].get("correct", False) for item in results),
+        "supported_sources": sum(item["answer"].get("sources_supported", False) for item in results),
         "not_covered_cases": sum(item["answer"].get("expected_not_covered", False) for item in results),
         "not_covered_passes": sum(
             item["answer"].get("expected_not_covered", False)

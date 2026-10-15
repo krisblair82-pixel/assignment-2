@@ -211,10 +211,12 @@ RETRY_NUDGE = ("The evidence provided above contains relevant material for "
 
 
 def ask(question: str, doc_filter: str | None = None,
-        index_path: str | None = None) -> dict:
+        index_path: str | None = None,
+        enabled_legs: set | None = None) -> dict:
     ensure_configured()
     index_path = index_path or os.path.join(INDEX_DIR, "index.json")
-    ev = retrieve(question, doc_filter=doc_filter, k=8, index_path=index_path)
+    ev = retrieve(question, doc_filter=doc_filter, k=8, index_path=index_path,
+                  enabled_legs=enabled_legs)
     text_chunks, pages = ev["text_chunks"], ev["pages"]
 
     if not text_chunks and not pages:
