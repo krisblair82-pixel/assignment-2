@@ -66,6 +66,17 @@ python run_evals.py             # 16-question hybrid evaluation
 python run_evals.py --compare  # hybrid vs keyword-only; saves comparison_*.json
 ```
 
+### Endpoint configuration
+
+Copy `config.example` to `.env` and set the shared `CLASS_API_KEY` locally. The
+service URLs are configured independently with `LLM_BASE`, `TEXT_EMBED_BASE`,
+`VISUAL_EMBED_BASE`, `RERANK_BASE`, and `PARSE_BASE`. The example points to the
+class services at `dobolyi.com`; use equivalent private/tunnel URLs only when
+your class setup requires them. Do not change the app to use port 9000: that
+port is reserved for Hermes. `VISUAL_EMBED_BASE` intentionally includes `/v1`
+in the example because the client posts to its `/embeddings` route without a
+second `/v1` prefix.
+
 ### Supplying API keys without committing them
 
 - All keys live in a local **`.env`** file (gitignored via `.gitignore`, and enforced by the pre-commit scanner in `scripts/hooks`).
@@ -84,6 +95,13 @@ Three tabs:
 1. **Ask a question** — optional document filter; the answer panel shows verified sources with real excerpts, and a gallery shows the original page/slide images that support the answer.
 2. **Practice quiz** — pick a document (+ optional topic phrase), choose 1–10 questions, click one answer choice per question, get scored, then reveal solutions/explanations with sources when ready.
 3. **Course materials** — add files (multiple at once) or remove documents. Adding runs parsing + indexing for that file; removing deletes the file, its chunks, page images, and index entries, then rebuilds search indexes.
+
+To add documents, open **Course materials**, choose one or more supported files,
+and click **Add files**. Uploads are deduplicated; a repeated upload is reported
+without creating duplicate chunks. To remove a document, select its `doc_id`
+and click **Remove selected document**. The app deletes the source file, rendered
+images, chunks, and index entries, then rebuilds search indexes. New uploads
+require the parsing and embedding services to be available.
 
 ### Supported formats and PowerPoint conversion
 
