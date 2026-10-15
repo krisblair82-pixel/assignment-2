@@ -25,9 +25,10 @@ def _load_env() -> dict:
                     k, v = line.split("=", 1)
                     k = k.strip()
                     v = v.strip()
-                    # Allow inline comments ("URL=value  # note"): cut at " #"
+                    # Allow inline comments ("URL=value  # note"): cut at " #",
+                    # then drop the spaces left before the comment.
                     if " #" in v:
-                        v = v.split(" #", 1)[0]
+                        v = v.split(" #", 1)[0].rstrip()
                     env[k] = v
     return env
 

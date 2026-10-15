@@ -20,9 +20,10 @@ with open(env_path, "r", encoding="utf-8") as f:
             k, v = line.split("=", 1)
             k = k.strip()
             v = v.strip()
-            # Allow inline comments ("URL=value  # note"): cut at " #"
+            # Allow inline comments ("URL=value  # note"): cut at " #",
+            # then drop the spaces left before the comment.
             if " #" in v:
-                v = v.split(" #", 1)[0]
+                v = v.split(" #", 1)[0].rstrip()
             ENV[k] = v
 
 KEY = ENV.get("CLASS_API_KEY", "")
