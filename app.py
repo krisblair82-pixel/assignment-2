@@ -21,6 +21,7 @@ ACCEPTED_FORMATS = (
     "Add and remove files in the **Course materials** tab."
 )
 _QUIZ_SESSIONS: dict[str, dict] = {}
+MAX_QUIZ_QUESTIONS = 10
 
 
 def _available_documents(index_path: str | None = None) -> list[str]:
@@ -83,10 +84,11 @@ def _format_quiz(quiz: dict) -> str:
 
 
 def generate_quiz_ui(document: str | None, topic: str | None,
-                     question_count: int | float = 5) -> tuple[str, str, str]:
+                     question_count: int | float = 5) -> tuple:
     """Generate and render a quiz while keeping its answer key private."""
     if not document:
-        return "", "Please select a document before generating a quiz.", ""
+        return ("", "Please select a document before generating a quiz.", "",
+                *_quiz_radio_updates([]))
     try:
         count = max(1, min(10, int(question_count)))
         result = generate_quiz_backend(
@@ -96,7 +98,8 @@ def generate_quiz_ui(document: str | None, topic: str | None,
         )
     except Exception:
         # Keep credentials, prompts, and backend details out of browser output.
-        return "", "Unable to generate this quiz. Check the local index and configuration.", ""
+        return ("", "Unable to generate this quiz. Check the local index and configuration.", "",
+                *_quiz_radio_updates([]))
 
     quiz = result.get("quiz", {})
     questions = quiz.get("questions", [])
@@ -107,7 +110,23 @@ def generate_quiz_ui(document: str | None, topic: str | None,
     status = f"Generated {len(questions)} question(s) from `{document}`. Answers remain hidden."
     if result.get("issues"):
         status += " Some model-generated items were omitted during validation."
-    return _format_quiz(quiz), status, quiz_id
+    return (_format_quiz(quiz), status, quiz_id,
+            *_quiz_radio_updates(questions))
+
+
+def _quiz_radio_updates(questions: list[dict]) -> list[dict]:
+    """Build safe Gradio updates for up to ten clickable quiz questions."""
+    updates = []
+    for number in range(MAX_QUIZ_QUESTIONS):
+        if number < len(questions):
+            question = questions[number]
+            updates.append(gr.update(
+                choices=question.get("options", []), value=None, visible=True,
+                label=f"{number + 1}. {question.get('question', '')}"))
+        else:
+            updates.append(gr.update(choices=[], value=None, visible=False,
+                                     label=f"Question {number + 1}"))
+    return updates
 
 
 def _format_score(result: dict, reveal: bool) -> str:
@@ -149,6 +168,25 @@ def score_quiz_ui(quiz_id: str | None, answers_json: str,
     else:
         status += " Solutions remain hidden for unanswered questions."
     return _format_score(result, reveal), status
+
+
+def score_clickable_quiz_ui(quiz_id: str | None, *values) -> tuple[str, str]:
+    """Convert clickable radio selections to the existing server-side scorer."""
+    reveal = bool(values[-1]) if values else False
+    selections = values[:-1] if values else []
+    session = _QUIZ_SESSIONS.get(quiz_id or "")
+    if session is None:
+        return "", "Generate a quiz before submitting answers."
+    question_ids = [q["id"] for q in session["quiz"].get("questions", [])]
+    answers = {}
+    questions = session["quiz"].get("questions", [])
+    for i, value in enumerate(selections):
+        if i >= len(question_ids) or value is None:
+            continue
+        options = questions[i].get("options", [])
+        if value in options:
+            answers[question_ids[i]] = options.index(value)
+    return score_quiz_ui(quiz_id, json.dumps(answers), reveal)
 
 
 # ------------------------------------------------- document management (1a)
@@ -254,24 +292,23 @@ def create_app() -> gr.Blocks:
             quiz_output = gr.Markdown()
             quiz_status = gr.Markdown()
             quiz_id_state = gr.State("")
+            quiz_radios = [gr.Radio(
+                choices=[], label=f"Question {number}", visible=False,
+                interactive=True,
+            ) for number in range(1, MAX_QUIZ_QUESTIONS + 1)]
             quiz_button.click(
                 fn=generate_quiz_ui,
                 inputs=[quiz_document, topic, quiz_questions],
-                outputs=[quiz_output, quiz_status, quiz_id_state],
+                outputs=[quiz_output, quiz_status, quiz_id_state, *quiz_radios],
             )
 
-            answers_json = gr.Textbox(
-                label="Your answers (JSON)",
-                placeholder='Example: {"q1": 0, "q2": 2}',
-                lines=2,
-            )
             reveal = gr.Checkbox(label="Reveal solutions and explanations", value=False)
             score_button = gr.Button("Submit answers")
             score_output = gr.Markdown()
             score_status = gr.Markdown()
             score_button.click(
-                fn=score_quiz_ui,
-                inputs=[quiz_id_state, answers_json, reveal],
+                fn=score_clickable_quiz_ui,
+                inputs=[quiz_id_state, *quiz_radios, reveal],
                 outputs=[score_output, score_status],
             )
 
