@@ -64,6 +64,9 @@ cp config.example .env
 git config core.hooksPath scripts/hooks
 
 # 5. Verify connectivity, then add materials
+#    Create materials/ and drop your course files there (the folder is
+#    gitignored — copyrighted material stays out of the repo), or upload
+#    them in-app via the Course materials tab.
 python probe_services.py        # checks all 5 services (scrubbed output)
 python smoke.py                 # live smoke: embed / rerank / chat / parse
 python ingest.py                # parse + chunk everything in materials/
@@ -282,6 +285,7 @@ python run_evals.py --compare --eval-set results/eval_questions_qa.json
 - **Embedding** — a dense numeric vector that captures meaning; similar texts/images get similar vectors.
 - **Visual embedding** — an embedding computed from an image (here, a page/slide render) so images can be searched by meaning.
 - **BM25 / bm25s** — classic keyword ranking (term-frequency statistics); `bm25s` is a fast Python implementation.
+- **ChromaDB** — the vector database used here to store and search embeddings (text chunks and page images live in separate collections).
 - **RRF (Reciprocal Rank Fusion)** — merging ranked lists from different search methods by their ranks.
 - **Reranker** — a model that re-scores candidate passages against the query for a more accurate final ordering.
 - **Chunk** — a slice of a document's text (~800 chars here) that is embedded and searched independently.
@@ -289,6 +293,10 @@ python run_evals.py --compare --eval-set results/eval_questions_qa.json
 - **NOT_COVERED** — the app's structured way of saying the materials cannot answer the question.
 - **doc_id** — a document's stable identifier in the index (slugified relative path, e.g. `MBAX_6418_Syllabus_Fall_2026.pdf`).
 - **Answer key** — the correct-answer map for a quiz; kept out of the app UI and out of git.
+- **Issue** — a tracked task or bug report on GitHub with its own discussion thread, assignees, and checklists (this project's tasks are tracked as issues, e.g. this README).
+- **Branch** — a separate line of commits that lets you change code without touching `main`.
+- **Pull request (PR)** — a proposed change delivered on a branch, discussed and reviewed by teammates, then merged.
+- **Review** — reading a teammate's issue/PR carefully to catch problems before the change lands.
 
 ## Team workflow
 

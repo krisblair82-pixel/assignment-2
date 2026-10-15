@@ -23,7 +23,12 @@ def _load_env() -> dict:
                 line = line.strip()
                 if line and not line.startswith("#") and "=" in line:
                     k, v = line.split("=", 1)
-                    env[k.strip()] = v.strip()
+                    k = k.strip()
+                    v = v.strip()
+                    # Allow inline comments ("URL=value  # note"): cut at " #"
+                    if " #" in v:
+                        v = v.split(" #", 1)[0]
+                    env[k] = v
     return env
 
 
