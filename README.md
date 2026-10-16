@@ -1,12 +1,12 @@
 # MBAX 6418 — Assignment 2: Course Assistant
 
-A course assistant that answers questions and generates practice quizzes from course materials (slides, syllabus, readings). Built with **hybrid RAG**: keyword search (bm25s) + text embeddings + visual embeddings over page/slide images, fused and re-ranked, with answers grounded in verified sources and original slide images.
+A course assistant that answers questions and generates practice quizzes from course materials (slides, syllabus, readings). Built with **hybrid RAG**: keyword search (bm25s) + dense-text retrieval fused with RRF and text-only reranking, alongside separately ranked visual embeddings over page/slide images. Answer generation receives text evidence and original slide images; citation validation checks indexed locations, not semantic correctness.
 
 ## What it does
 
 | Feature | How it works |
 |---|---|
-| **Ask grounded questions** | Hybrid retrieval (keyword + text + visual, separate text/visual indexes) → RRF fusion → multimodal rerank → vision LLM generates a structured `{answer, sources[]}` reply. Every claim cites a real indexed chunk or original page/slide image; sources are validated against the index, so citations cannot be fabricated. Missing information returns `NOT_COVERED` — never invented. |
+| **Ask grounded questions** | Separate text/visual indexes → RRF of keyword + dense-text results → text-only reranking; visual results remain separate. A vision LLM receives text and images and returns `{answer, sources[]}`. Schema and indexed source locations are checked; semantic support still needs review. Missing evidence is intended to yield `NOT_COVERED`. |
 | **Show slide evidence** | Retrieved page/slide images are displayed in a gallery next to the answer, labeled with document name and page/slide number. The user can also ask the app to describe/explain slide content, including diagrams and charts. |
 | **Practice quizzes** | Pick a document (optional topic filter) → an N-question multiple-choice quiz grounded in that material's chunks and images. The answer key stays server-side (`quiz_key_*.json`, gitignored); students see scores immediately, and solutions/explanations with sources only after answering or on explicit request. |
 | **Manage materials in-app** | Add/remove documents through the UI (requirement 1a). Uploads are deduplicated by filename and content hash; removing a document also removes its chunks, page images, and index entries, so later answers never rely on removed material. |
@@ -19,8 +19,8 @@ The pipeline, matching the diagram:
 
 1. **Document preparation** — uploaded files are rendered to a PNG per page/slide (PyMuPDF for PDF; LibreOffice, macOS Keynote/PowerPoint, or Windows PowerPoint COM for PPTX), parsed into structured text by the class document-parsing service (9005), and chunked with `langchain-text-splitters` (800 chars, 100 overlap) while preserving `doc_id` + page/slide/section.
 2. **Indexing** — text chunks go into **bm25s** (keyword) and ChromaDB `text_chunks` (9002 text embeddings, dim 2048); page/slide images go into a **separate** ChromaDB `pages` collection (9003 visual embeddings, dim 2048). `index/index.json` is the source of truth and is regenerable.
-3. **Query** — bm25 + dense-text + visual retrieval are combined with RRF (k=60), text candidates are re-ranked by the 9004 multimodal reranker, and the best text excerpts **plus original slide images** are given to the 9001 vision LLM with strict evidence-only instructions.
-4. **Validation** — the model must return `{answer, sources[]}`; the schema is checked and each cited source must resolve to a real indexed chunk (excerpts come from the index, not the model). Quiz questions and explanations are grounded the same way.
+3. **Query** — `retrieval.py` combines only BM25 and dense-text rankings with RRF (k=60), then sends text strings to the 9004 reranking service. Visual candidates retain their separate ranking; they are neither RRF-fused nor image-content reranked. `answers.py` combines the text and image evidence for the 9001 vision LLM. It prioritizes indexed images matching the top text locations, then fills remaining slots from visual results and other indexed pages, capped at three images. This image attachment path also operates in keyword-only mode when text evidence is retrieved; keyword-only does not mean image-free generation.
+4. **Validation** — the model must return `{answer, sources[]}`. `answers.py` checks the schema and resolves citations to indexed text evidence or verifies their document/page/slide against attached source images. Text excerpts come from indexed chunks; image-only citations may have an empty excerpt. These checks verify source identity, not semantic correctness. `NOT_COVERED` handles model refusals and fallback cases such as missing evidence, an unparseable structured answer or an answer without verified sources; an evidence-overlap heuristic may trigger one retry.
 
 ## Class services (do NOT use port 9000 — reserved for Hermes)
 
@@ -29,7 +29,7 @@ The pipeline, matching the diagram:
 | 9001 | Vision LLM (`/v1/chat/completions`) | cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit | answers, quiz generation |
 | 9002 | Text embeddings (`/v1/embeddings`, dim 2048) | nvidia/Nemotron-3-Embed-1B-BF16 | text chunks + query vectors |
 | 9003 | Visual embeddings (`/embeddings` — no `/v1` prefix, dim 2048) | Qwen/Qwen3-VL-Embedding-2B | slide/page images |
-| 9004 | Multimodal rerank (`/v1/rerank`) | Qwen/Qwen3-VL-Reranker-2B | re-order fused text candidates |
+| 9004 | Reranking service (`/v1/rerank`) | Qwen/Qwen3-VL-Reranker-2B | text-only inputs; re-order fused text candidates, not images |
 | 9005 | Document parsing (`/chat/completions`, dots.mocr) | dots.mocr | page image → layout JSON |
 
 All calls are server-side. **Port 9000 is reserved for the Hermes agent and must not be used by this app.** Service clients live in `services.py`; they scrub error messages so the API key never appears in logs, the UI, or error output.
@@ -47,6 +47,7 @@ cd assignment-2
 python -m venv .venv            # or: uv venv .venv
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+```
 
 If you use `uv` instead of `pip`, install into the environment with
 `UV_LINK_MODE=copy uv pip install --python .venv/Scripts/python.exe -r requirements.txt`
@@ -54,6 +55,7 @@ on Windows when the repository is inside OneDrive or another cloud-synced
 folder. This avoids a Windows hardlink error; on macOS/Linux use the equivalent
 `.venv/bin/python` path.
 
+```bash
 # 3. Configure the class API key (NEVER commit this file)
 cp config.example .env
 #    edit .env and set CLASS_API_KEY=<your real class key>
@@ -127,20 +129,20 @@ If no converter is available, ingestion warns and indexes the deck **text-only**
 ## Testing
 
 ```bash
-python -m pytest -q        # 64 tests: unit + end-to-end + secret scan (see tests/)
+python -m pytest -q        # test suite; 64 test functions found by static inspection (see tests/)
 python run_evals.py        # hybrid: full retrieval + grounded answers over the 16-question set
 python run_evals.py --mode keyword   # issue #5 baseline: bm25 keyword search only
 ```
 
-What is tested: adding/removing files (dedupe, index cleanup, batch uploads), answering text and image questions, quiz generation/scoring (answer keys stay hidden), missing-information handling, repeated uploads, unavailable services (resilient leg fallback), light/dark mode readability (Gradio themes), the focused QA comparison, and the secret scanner. What remains unchecked: fresh installs on Windows hardware (COM rendering) and macOS Keynote conversion — see *Limitations*.
+Existing automated checks cover adding/removing files (dedupe, index cleanup, batch uploads), answering text and image questions, quiz generation/scoring, missing-information handling, repeated uploads, unavailable services and secret scanning. Many workflow checks use mocks; their presence is not proof of browser/live end-to-end behavior or a passing run at the reviewed revision. Saved evaluations and light/dark screenshots are team evidence, not new independent tests. Fresh-copy deployment, conversion fidelity (including Windows COM and macOS Keynote), browser behavior and readability remain unverified by the A09 documentation audit — see *Limitations*.
 
 Screenshots are reproducible: `python -m playwright install chromium && python scripts/capture_screenshots.py` (requires the app running; re-generates `assets/screenshots/*.png`).
 
 ## Evaluation results and design comparison (issue #5)
 
-Question set: 16 gold questions in `results/eval_questions.json` covering Week 2 slides (text + visuals, including the required **Vibe Coding on "Prod"** meme on slide 33), Week 3 Prompt Engineering slides, the syllabus, plus one intentionally unanswerable question (q12) to check that the app acknowledges missing information. Both modes ran on the same questions and the same index; transcripts are saved in `results/eval_*.json` (the two latest runs are the comparison below; earlier transcripts document the iteration, including a metrics bug where expectations written for the original PPTX index used slide numbers — page/slide-twin expectations were added when the materials switched to PDF).
+Historical question set: 16 questions in `results/eval_questions.json`, covering Week 2 text/visuals (including the **Vibe Coding on "Prod"** meme), Week 3, the syllabus and an unanswerable question. The table below traces to `results/eval_20261014_142255.json` and `results/eval_20261014_142424.json`, referenced by `results/comparison_20261015_verified.json`. These are historical reports, not the latest focused runs or proof of a controlled comparison. The older runner did not preserve keyword mode through answer generation; the exact execution revision and index contents were not recorded. Earlier reports also document page/slide expectation changes as the materials switched formats.
 
-**Hybrid (all legs + rerank) vs keyword-only baseline (bm25 only), 16 questions:**
+**Historical reports labeled hybrid and keyword, 16 questions (baseline validity unverified):**
 
 | Metric | Hybrid | Keyword-only baseline |
 |---|---|---|
@@ -171,7 +173,7 @@ Per-question retrieval source hits (hybrid then keyword):
 | q15_syllabus_office_hours | ✅ | 6.4s | ✅ | 4.7s |
 | q16_week3_prompts | ✅ | 5.2s | ✅ | 4.4s |
 
-**Interpretation:** retrieval *location* is equally good in both modes (15/16 — the miss is the deliberate not-covered case), and keyword-only is ~35% faster because it skips embedding and reranking calls. But hybrid grounded **all 16** answers while keyword-only grounded **15** — it fails q14, the syllabus-grading question, because the grading table is parsed as HTML and keyword search matches table markup poorly; the dense text leg retrieves the right chunk by meaning. Critically, keyword-only retrieval cannot return *page/slide images*: the visual leg is what lets the app **show the actual meme slide** (q13) and diagram images, which the assignment explicitly requires. We keep the full hybrid pipeline: the extra ~3 seconds per question buy visual evidence and stronger grounding on table-heavy material.
+**Interpretation limits:** the saved reports record equal retrieval-location hits (15/16), grounded flags of 16/16 versus 15/16 and lower elapsed time in the run labeled keyword. They do not establish that keyword-only answer retrieval caused the q14 difference or that hybrid uniquely supplied images. The historical mode-propagation defect and missing execution provenance prevent those causal conclusions. Even with corrected mode propagation, `answers.py` can attach indexed slide images in keyword-only mode. These historical figures are retained as evidence of earlier runs, not as a validated basis for selecting the design.
 
 Regression: `scripts/make_comparison_table.py` regenerates these tables from the latest transcripts (`python scripts/make_comparison_table.py`).
 
@@ -181,12 +183,12 @@ The original 16-question regression evaluation remains in `results/eval_question
 
 ### Focused 8-question set
 
-The same local index and the same two available course files were used for both approaches:
+The focused question-set metadata declares these two course files, and both run reports name `index.json`. This is the recorded corpus claim, not independent verification of identical index contents:
 
 - `MBAX_6418_-_Week_2_-_LLM_Fundamentals_v2.pptx`
 - `MBAX_6418_-_Week_3_-_Prompt_Engineering_v1.pptx`
 
-The syllabus question is intentionally included, but `MBAX_6418_Syllabus_Fall_2026.pdf` was not present in the local index. It therefore tests whether the assistant acknowledges missing information rather than inventing the quiz percentage.
+The syllabus question is intentionally included, but `MBAX_6418_Syllabus_Fall_2026.pdf` was not present in the local index. It therefore tests **missing-file refusal, not syllabus answer quality**. Answering a question from an available syllabus still requires separate evaluation; this focused set does not establish that part of the rubric.
 
 | ID | Question | Expected evidence |
 |---|---|---|
@@ -199,11 +201,11 @@ The syllabus question is intentionally included, but `MBAX_6418_Syllabus_Fall_20
 | qa07 | According to the syllabus, what percentage of the final grade comes from quizzes? | Expected `NOT_COVERED`; syllabus missing locally |
 | qa08 | What was the instructor’s favorite programming language in high school? | Expected `NOT_COVERED`; not in the materials |
 
-“Correct” is an automated answer-content check against the required terms in the gold set (or an exact `NOT_COVERED` response). “Sources supported” means the returned source location matches the expected slide/page; for uncovered questions it means no source was returned. Latency is measured end-to-end per question, including retrieval and answer generation.
+“Correct” is an automated required-term check (or a `NOT_COVERED` response, including the accepted explanatory suffix). “Sources supported” means at least one returned source matches an expected location; for uncovered questions it means no source was returned. Neither metric independently verifies semantic support or actual image use. “Correct missing-information refusals” additionally requires the grounded/schema-valid flag. Latency includes the initial retrieval check and answer generation, which performs another retrieval; it is not UI-only response time.
 
 ### Hybrid versus keyword-only on the same set
 
-Hybrid used BM25 + dense text + visual retrieval + multimodal reranking. The baseline used BM25 only. The corrected evaluation runner passes the selected retrieval mode into answer generation, so the model does not silently fall back to hybrid retrieval during the baseline run.
+The current hybrid configuration uses BM25 + dense-text retrieval with text-only reranking and a separate visual retrieval leg. Keyword mode selects BM25 only for retrieval, but answer generation can still attach indexed images. In the reviewed code, `run_evals.py` forwards the selected mode to `answers.py`, which forwards it to retrieval. That code inspection does not establish the exact executable revision used for the saved runs; see provenance below.
 
 | Metric | Hybrid | Keyword-only |
 |---|---:|---:|
@@ -228,7 +230,7 @@ Hybrid used BM25 + dense text + visual retrieval + multimodal reranking. The bas
 
 ### Interpretation and decision
 
-I would keep the **hybrid pipeline** for the application. It answered all six answerable questions correctly, including both visual questions, and supplied supported sources for every case. It also handled the Vibe Coding meme by retrieving slide 33 and grounding the answer in the original slide image. The keyword-only baseline was about 29% faster overall and was adequate for most text questions, but it missed the required prompt-caching detail and cannot perform visual retrieval or provide visual evidence candidates.
+The provisional choice is to keep the **hybrid pipeline** for its additional dense-text and visual retrieval paths. In the saved focused reports, hybrid passes the required-term checks on all six answerable questions, including both labeled visual, while keyword misses the prompt-caching detail and records lower total latency. This supports further investigation, not a causal quality claim: location matches and term checks do not prove image use or semantic correctness. Keyword mode skips visual embedding retrieval and reranking, but can still receive original slide images through the shared answer-generation path. Team review of source fidelity and a provenance-complete comparison remain necessary.
 
 The hybrid run had one schema-validation failure on the deliberately uncovered high-school-programming-language question even though the answer content correctly refused to answer. This is recorded as a limitation rather than counted as a successful grounded answer. The app still failed closed and did not invent a fact. The missing syllabus question was correctly refused by both approaches because the syllabus file is absent from the local index; the percentage cannot be reported until that course file is added and indexed.
 
@@ -237,6 +239,22 @@ The raw, scrubbed evidence is `results/comparison_20261015_104050.json`, with pe
 ```bash
 python run_evals.py --compare --eval-set results/eval_questions_qa.json
 ```
+
+
+### Evaluation provenance and limits
+
+All paths below are relative to `results/`; timestamps are the saved `generated_at` values, with no timezone recorded.
+
+| Evidence | Saved timestamp | Evaluation set / index label |
+|---|---|---|
+| `eval_20261014_142255.json` (hybrid) | 2026-10-14 14:22:55 | `eval_questions.json` / `index.json` |
+| `eval_20261014_142424.json` (keyword) | 2026-10-14 14:24:24 | `eval_questions.json` / `index.json` |
+| `comparison_20261015_verified.json` | 2026-10-14 14:24:24 | References the two historical reports above; filename date is not the run date |
+| `eval_20261015_104017.json` (hybrid) | 2026-10-15 10:40:17 | `eval_questions_qa.json` / `index.json` |
+| `eval_20261015_104050.json` (keyword) | 2026-10-15 10:40:50 | `eval_questions_qa.json` / `index.json` |
+| `comparison_20261015_104050.json` | 2026-10-15 10:40:50 | References the two focused reports above |
+
+The documentation audit inspected repository revision `86914dedf9b64c47318f5a767ef5a246aa150af4`; **this is not a recorded evaluation execution SHA**. The reports do not record code revision, corpus/index hashes, dependency versions, hardware or service configuration. Matching index filenames do not prove identical contents. The focused question set names the Week 2/Week 3 PPTX files and explicitly marks the syllabus absent; the saved reports do not independently establish the complete corpus. They store flags, locations and timings, not full answer text or attached-image traces, so independent semantic regrading and image-use verification remain outstanding. No evaluations were rerun for these documentation corrections.
 
 
 ## Known limitations and failures investigated
